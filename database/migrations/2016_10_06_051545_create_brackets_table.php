@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateLeaguesTable extends Migration
+class CreateBracketsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,15 @@ class CreateLeaguesTable extends Migration
      */
     public function up()
     {
-        Schema::create('leagues', function (Blueprint $table) {
+        Schema::create('brackets', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('api_id');
-            $table->string('slug');
+            $table->integer('api_tournament_id'); //api_id or tournaments.id hmm
+            $table->string('api_id');
             $table->string('name');
-            $table->string('region')->nullable();
-            $table->integer('drupal_id');
-            $table->string('logo_url');
-            $table->datetime('api_created_at');
-            $table->datetime('api_updated_at');
+            $table->integer('position');
+            $table->integer('group_position');
+            $table->boolean('can_manufacture');
+            $table->string('state');
             $table->timestamp('created_at');
         });
     }
@@ -34,6 +33,6 @@ class CreateLeaguesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('leagues');
+        Schema::dropIfExists('brackets');
     }
 }
