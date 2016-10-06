@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Scrape\ScrapeController;
 
 use \GuzzleHttp\Exception\ClientException;
+use \GuzzleHttp\Exception\ServerException;
+use \GuzzleHttp\Client;
 
 class LeaguesController extends ScrapeController
 {
@@ -39,7 +41,5 @@ class LeaguesController extends ScrapeController
                 ];
             }
         }
-
-        dd($leagues);
     }
 }
