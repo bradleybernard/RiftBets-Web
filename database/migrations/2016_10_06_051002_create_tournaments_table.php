@@ -15,13 +15,13 @@ class CreateTournamentsTable extends Migration
     {
         Schema::create('tournaments', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('api_league_id'); //api id or leagues.id hmm
-            $table->string('api_id_long'); // hash not int
+            $table->string('api_league_id'); //api id or leagues.id hmme
+            $table->string('api_id_long');
             $table->string('title');
             $table->string('description');
             $table->boolean('published');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->timestamp('created_at');
         });
     }

@@ -18,13 +18,13 @@ class CreateTeamsTable extends Migration
             $table->integer('api_id');
             $table->string('slug');
             $table->string('name');
-            $table->string('team_photo_url');
-            $table->string('logo_url');
-            $table->string('acronym');
+            $table->string('team_photo_url')->nullable();
+            $table->string('logo_url')->nullable();
+            $table->string('acronym')->nullable();
             $table->string('alt_logo_url')->nullable();
             $table->datetime('api_created_at');
             $table->datetime('api_updated_at');
-            $table->integer('drupalId');
+            $table->integer('drupalId')->nullable();
             $table->timestamp('created_at');
         });
     }

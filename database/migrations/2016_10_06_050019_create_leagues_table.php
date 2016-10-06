@@ -19,8 +19,8 @@ class CreateLeaguesTable extends Migration
             $table->string('slug');
             $table->string('name');
             $table->string('region')->nullable();
-            $table->integer('drupal_id');
-            $table->string('logo_url');
+            $table->integer('drupal_id')->nullable();
+            $table->string('logo_url')->nullable();
             $table->datetime('api_created_at');
             $table->datetime('api_updated_at');
             $table->timestamp('created_at');
