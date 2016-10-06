@@ -13,11 +13,14 @@ class TeamsController extends ScrapeController
 {
     public function scrape () 
     {
-    	$teams = [['api_id' => 2, 'slug' => 'team-solomid', 'tournament_id' => '3c5fa267-237e-4b16-8e86-20378a47bf1c']];
+    	$teams = [['api_id' => 11, 'slug' => 'team-solomid', 'tournament_id' => '3c5fa267-237e-4b16-8e86-20378a47bf1c']];
     	$playerRecords = [];
-         foreach($teams as $team)
-         {
-         	try {
+    	$teamPlayerRecords = [];
+
+        foreach($teams as $team)
+        {
+         	try 
+         	{
                 $response = $this->client->request('GET', 'v1/teams?slug='.$team['slug'].'&tournament='.$team['tournament_id']);
             } 
             catch (ClientException $e)
@@ -28,7 +31,8 @@ class TeamsController extends ScrapeController
             $response = json_decode((string) $response->getBody());
             $players = $response->players;
 
-            foreach($players as $player){
+            foreach($players as $player)
+            {
             	$playerRecords[] = [
             		'api_id'			=> $player->id,
             		'slug'				=> $player->slug,
@@ -43,9 +47,27 @@ class TeamsController extends ScrapeController
             		'drupal_id'			=> $this->pry($player, 'foreignIds->drupalId')
             	];
             }
+         	
+         	foreach($response->teams as $roster)
+         	{
+         		if($roster->slug == $team['slug'])
+         		{
+            		foreach($playerRecords as $player)
+            		{
+            			$teamPlayerRecords[] = [
+            				'api_id'			=> $player['api_id'],
+            				'api_team_id'		=> $roster->id,
+            				'starter'			=> in_array($player['api_id'], $roster->starters)
+            			];            		
+            		}
+            		break;
+            	}
+        	}
          }
 
-         dd($playerRecords);
+
+
+         dd($teamPlayerRecords);
 
     }
 }
