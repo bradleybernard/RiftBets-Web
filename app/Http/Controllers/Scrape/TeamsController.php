@@ -13,11 +13,39 @@ class TeamsController extends ScrapeController
 {
     public function scrape () 
     {
-    	try {
-                $response = $this->client->request('GET', 'v1/teams?slug=team-solomid&tournament=3c5fa267-237e-4b16-8e86-20378a47bf1c', ['query' => ['id' => $index]]);
-            } catch (ClientException $e) {
+    	$teams = [['api_id' => 2, 'slug' => 'team-solomid', 'tournament_id' => '3c5fa267-237e-4b16-8e86-20378a47bf1c']];
+    	$playerRecords = [];
+         foreach($teams as $team)
+         {
+         	try {
+                $response = $this->client->request('GET', 'v1/teams?slug='.$team['slug'].'&tournament='.$team['tournament_id']);
+            } 
+            catch (ClientException $e)
+            {
                 continue;
             }
+
+            $response = json_decode((string) $response->getBody());
+            $players = $response->players;
+
+            foreach($players as $player){
+            	$playerRecords[] = [
+            		'api_id'			=> $player->id,
+            		'slug'				=> $player->slug,
+            		'name'				=> $player->name,
+            		'first_name'		=> $player->firstName,
+            		'last_name'			=> $player->lastName,
+            		'role_slug'			=> $player->roleSlug,
+            		'photo_url'			=> $player->photoUrl,
+            		'hometown'			=> $player->hometown,
+            		'api_created_at'	=> $player->createdAt,
+            		'api_updated_at'	=> $player->updatedAt,
+            		'drupal_id'			=> $this->pry($player, 'foreignIds->drupalId')
+            	];
+            }
+         }
+
+         dd($playerRecords);
 
     }
 }
