@@ -20,8 +20,17 @@ class CreateBracketsTable extends Migration
             $table->string('name')->nullable();
             $table->integer('position');
             $table->integer('group_position');
+            $table->string('group_name')->nullable();
             $table->boolean('can_manufacture');
             $table->string('state');
+            $table->string('game_identifier')->nullable();
+            $table->integer('game_required_players')->nullable();
+            $table->string('game_map_name')->nullable();
+            $table->integer('game_required_teams')->nullable();
+            $table->string('bracket_identifier')->nullable();
+            $table->integer('bracket_rounds')->nullable();
+            $table->string('match_identifier')->nullable();
+            $table->integer('match_best_of')->nullable();
             $table->timestamp('created_at');
         });
     }
