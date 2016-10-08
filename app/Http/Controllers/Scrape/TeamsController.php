@@ -9,18 +9,22 @@ use App\Http\Controllers\Scrape\ScrapeController;
 
 use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
-use DB;
 use \Carbon\Carbon;
+use DB;
 
 class TeamsController extends ScrapeController
 {
-    public function scrape () 
+    protected $tables = ['players', 'team_players'];
+
+    public function scrape() 
     {
+        $this->reset();
+
         $teams = DB::table('rosters')->join('teams', 'rosters.api_team_id', '=', 'teams.api_id')
                     ->select(['api_id', 'api_tournament_id', 'slug'])
                     ->where('api_tournament_id', '91be3d78-874a-44e0-943f-073d4c9d7bf6')
                     ->get();
-                    
+
         foreach($teams as $team)
         {
             $insert = [];

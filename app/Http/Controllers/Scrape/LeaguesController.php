@@ -16,7 +16,7 @@ class LeaguesController extends ScrapeController
     protected $tables = [
         'leagues', 'teams', 'tournaments', 'rosters',
         'breakpoints', 'breakpoint_resources', 'brackets',
-        'matches', 'games', 
+        'matches', 'games', 'bracket_resources',
     ];
 
     public function scrape()

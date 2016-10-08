@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Scrape;
 use App\Http\Controllers\Controller;
 
 use \GuzzleHttp\Client;
+use DB;
 
 class ScrapeController extends Controller
 {
     protected $client   = null;
     protected $baseUri  = 'http://api.lolesports.com/api/';
     protected $options  = [];
+    
     protected $tables   = [];
 
     public function __construct()
