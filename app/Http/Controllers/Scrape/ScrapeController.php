@@ -18,7 +18,7 @@ class ScrapeController extends Controller
     public function __construct()
     {
         $options = array_merge(['base_uri'  => $this->baseUri], $this->options);
-        $this->client = $client = new Client($options);
+        $this->client = new Client($options);
     }
 
     protected function pry($object, $path)
