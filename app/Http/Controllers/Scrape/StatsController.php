@@ -9,18 +9,20 @@ use App\Http\Controllers\Controller;
 
 use \GuzzleHttp\Client;
 
+use \Carbon\Carbon;
+use DB;
+
 class StatsController extends ScrapeController
 {
-
-
 	public function scrape()
 	{
 
 		$client = new Client([
 		    // Base URI for the timelines, needs {gameHash}
-		    'base_uri' => 'https://acs.leagueoflegends.com/v1/stats/game/TRLH1/1001890201/',
+		    'base_uri' => 'https://acs.leagueoflegends.com/v1/stats/game/TRLH1/',
 		]);
 
+		$gameId = '1001890201';
 		$gameHash = '6751c4ef7ef58654';
 
     	$playerStats = [];
@@ -28,7 +30,7 @@ class StatsController extends ScrapeController
 	            
 	    try 
 	    {
-	    	$response = $client->request('GET', 'timeline?gameHash='.$gameHash);
+	    	$response = $client->request('GET', $gameId.'/timeline?gameHash='.$gameHash);
 	    }
 	    catch (ClientException $e)
 	    {
@@ -41,7 +43,7 @@ class StatsController extends ScrapeController
 
 	    $response = json_decode((string)$response->getBody());
 
-	    // dd($response->frames[37]);
+	    dd($response->frames[37]);
 
 	    $frames = $response->frames;
 
@@ -54,8 +56,9 @@ class StatsController extends ScrapeController
 	    	foreach ($players as $player) 
 	    	{
 	    		$playerStats[] = [
-	    			'api_game_id_long'		=> $gameHash,	//not sure whether to store game hash or not, seems useful to compare against games in table
-            		'api_game_player_id'	=> $player->participantId,
+	    			'api_game_id_long'		=> $gameHash,
+	    			'api_game_id'			=> $gameId,
+            		'api_match_player_id'	=> $player->participantId,
             		'x_position'			=> $player->position->x,
             		'y_position'			=> $player->position->y,
             		'current_gold'			=> $player->currentGold,
@@ -74,7 +77,8 @@ class StatsController extends ScrapeController
 	    	{
 	    		$gameEvents[] = [
 	    			'api_game_id_long'		=> $gameHash,
-	    			'api_game_player_id'	=> $this->pry($event, 'participantId'),
+	    			'api_game_id'			=> $gameId,
+	    			'api_match_player_id'	=> $this->pry($event, 'participantId'),
             		'event_type'			=> $event->type,
             		'game_time_stamp'		=> $event->timestamp,
             		'level_up_type'			=> $this->pry($event, 'levelUpType'),
@@ -94,5 +98,8 @@ class StatsController extends ScrapeController
 	    	}
 	    }
 	    // dd($gameEvents);
+    	DB::table('player_stats')->insert($playerStats);
+		DB::table('events')->insert($gameEvents);
 	}
+
 }
