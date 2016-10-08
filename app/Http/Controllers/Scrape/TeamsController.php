@@ -22,7 +22,7 @@ class TeamsController extends ScrapeController
 
         $teams = DB::table('rosters')->join('teams', 'rosters.api_team_id', '=', 'teams.api_id')
                     ->select(['api_id', 'api_tournament_id', 'slug'])
-                    ->where('api_tournament_id', '91be3d78-874a-44e0-943f-073d4c9d7bf6')
+                    ->where('api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')
                     ->get();
 
         foreach($teams as $team)

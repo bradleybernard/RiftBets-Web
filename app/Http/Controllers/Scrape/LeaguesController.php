@@ -23,7 +23,9 @@ class LeaguesController extends ScrapeController
     {
         $this->reset();
 
-        foreach(range(1, 30) as $index) {
+        $leagues = [9];
+
+        foreach($leagues as $index) {
             
             try {
                 $response = $this->client->request('GET', 'v1/leagues', ['query' => ['id' => $index]]);
@@ -65,6 +67,11 @@ class LeaguesController extends ScrapeController
             }
 
             foreach($response->highlanderTournaments as $tournament) {
+                
+                if($tournament->title != 'world_championship_2016') {
+                    continue;
+                }
+
                 $insert['tournaments'][] = [
                     'api_league_id'         => $tournament->league,
                     'api_id_long'           => $tournament->id,
