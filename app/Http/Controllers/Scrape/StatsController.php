@@ -7,11 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
 
-use \Carbon\Carbon;
 use DB;
 
 class StatsController extends ScrapeController

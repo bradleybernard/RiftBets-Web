@@ -15,16 +15,16 @@ class CreateTeamsTable extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('api_id');
+            $table->integer('api_id')->unique();
             $table->string('slug');
             $table->string('name');
             $table->string('team_photo_url')->nullable();
             $table->string('logo_url')->nullable();
             $table->string('acronym')->nullable();
             $table->string('alt_logo_url')->nullable();
+            $table->integer('drupalId')->nullable();
             $table->datetime('api_created_at');
             $table->datetime('api_updated_at');
-            $table->integer('drupalId')->nullable();
             $table->timestamp('created_at');
         });
     }

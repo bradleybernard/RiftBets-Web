@@ -16,7 +16,7 @@ class CreateBreakpointsTable extends Migration
         Schema::create('breakpoints', function (Blueprint $table) {
             $table->increments('id');
             $table->string('api_tournament_id');
-            $table->string('api_id_long');
+            $table->string('api_id_long')->unique();
             $table->string('name');
             $table->integer('position');
             $table->string('generator_identifier');

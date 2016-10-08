@@ -15,7 +15,7 @@ class CreateLeaguesTable extends Migration
     {
         Schema::create('leagues', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('api_id');
+            $table->integer('api_id')->unique();
             $table->string('slug');
             $table->string('name');
             $table->string('region')->nullable();

@@ -7,18 +7,23 @@ use App\Http\Controllers\Scrape\ScrapeController;
 
 use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
-use \GuzzleHttp\Client;
 
 use \Carbon\Carbon;
 use DB;
 
 class LeaguesController extends ScrapeController
 {
+    protected $tables = [
+        'leagues', 'teams', 'tournaments', 'rosters',
+        'breakpoints', 'breakpoint_resources', 'brackets',
+        'matches', 'games', 
+    ];
+
     public function scrape()
     {
-        $range = range(1, 30);
+        $this->reset();
 
-        foreach($range as $index) {
+        foreach(range(1, 30) as $index) {
             
             try {
                 $response = $this->client->request('GET', 'v1/leagues', ['query' => ['id' => $index]]);
@@ -73,8 +78,8 @@ class LeaguesController extends ScrapeController
                 foreach($tournament->rosters as $roster) {
                     $insert['rosters'][] = [
                         'api_tournament_id'     => $tournament->id,
-                        'api_id'                => $this->pry($roster, 'team'),
                         'api_id_long'           => $roster->id,
+                        'api_team_id'           => $this->pry($roster, 'team'),
                         'name'                  => $roster->name,
                     ];
                 }
@@ -184,9 +189,26 @@ class LeaguesController extends ScrapeController
             }
 
             foreach($insert as $table => $records) {
-                if($index == 1) DB::table($table)->truncate();
-                DB::table($table)->insert($records);
+                if($table == 'teams') {
+                    $this->insertTeams($records);
+                } else {
+                    DB::table($table)->insert($records);
+                }
             }
         }
+    }
+
+    private function insertTeams($records) 
+    {
+        $collection = collect($records);
+        $apiIds = $collection->pluck('api_id')->toArray();
+
+        $match = DB::table('teams')->select('api_id')->whereIn('api_id', $apiIds)->pluck('api_id')->toArray();
+
+        $insert = $collection->filter(function ($value, $key) use ($match) {
+            return !in_array($value['api_id'], $match);
+        });
+
+        DB::table('teams')->insert($insert->toArray());
     }
 }

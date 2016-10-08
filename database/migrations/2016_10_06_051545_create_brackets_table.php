@@ -16,7 +16,7 @@ class CreateBracketsTable extends Migration
         Schema::create('brackets', function (Blueprint $table) {
             $table->increments('id');
             $table->string('api_tournament_id'); //api_id or tournaments.id hmm
-            $table->string('api_id_long');
+            $table->string('api_id_long')->unique();
             $table->string('name')->nullable();
             $table->integer('position');
             $table->integer('group_position');

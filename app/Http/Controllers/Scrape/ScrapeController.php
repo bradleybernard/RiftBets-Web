@@ -2,23 +2,39 @@
 
 namespace App\Http\Controllers\Scrape;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use \GuzzleHttp\Client;
 
 class ScrapeController extends Controller
 {
-    protected $client;
-    protected $baseUri = 'http://api.lolesports.com/api/';
-    protected $options = [];
+    protected $client   = null;
+    protected $baseUri  = 'http://api.lolesports.com/api/';
+    protected $options  = [];
+    protected $tables   = [];
 
     public function __construct()
     {
         $options = array_merge(['base_uri'  => $this->baseUri], $this->options);
         $this->client = new Client($options);
+    }
+
+    protected function reset()
+    {
+        foreach($this->tables as $table) {
+            DB::table($table)->truncate();
+        }
+    }
+
+    protected function clean($input)
+    {
+        $input = trim($input);
+        
+        if($input == "" || $input == "--") {
+            return null;
+        }
+
+        return $input;
     }
 
     protected function pry($object, $path)

@@ -16,7 +16,7 @@ class CreateGamesTable extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->increments('id');
             $table->string('api_match_id');
-            $table->string('api_id_long');
+            $table->string('api_id_long')->unique();
             $table->string('name');
             $table->string('generated_name');
             $table->bigInteger('game_id')->nullable();
