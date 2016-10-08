@@ -14,32 +14,6 @@ use DB;
 
 class LeaguesController extends ScrapeController
 {
-    private function pluckResource($object)
-    {
-        $keys = ['roster', 'breakpoint', 'match', 'bracket'];
-
-        foreach($keys as $key) {
-            if(property_exists($object, $key)) {
-                return $object->{$key};
-            }
-        }
-
-        return null;
-    }
-
-    private function pluckResourceType($object)
-    {
-        $keys = ['roster', 'breakpoint', 'match', 'bracket'];
-
-        foreach($keys as $key) {
-            if(property_exists($object, $key)) {
-                return $key;
-            }
-        }
-
-        return null;
-    }
-
     public function scrape()
     {
         $range = range(1, 30);

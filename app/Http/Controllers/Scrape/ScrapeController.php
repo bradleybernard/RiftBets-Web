@@ -12,6 +12,14 @@ use \GuzzleHttp\Client;
 class ScrapeController extends Controller
 {
     protected $client;
+    protected $baseUri = 'http://api.lolesports.com/api/';
+    protected $options = [];
+
+    public function __construct()
+    {
+        $options = array_merge(['base_uri'  => $this->baseUri], $this->options);
+        $this->client = $client = new Client($options);
+    }
 
     protected function pry($object, $path)
     {
@@ -28,10 +36,29 @@ class ScrapeController extends Controller
         return $object;
     }
 
-    public function __construct()
+    protected function pluckResource($object)
     {
-        $this->client = $client = new Client([
-            'base_uri' => 'http://api.lolesports.com/api/',
-        ]);
+        $keys = ['roster', 'breakpoint', 'match', 'bracket'];
+
+        foreach($keys as $key) {
+            if(property_exists($object, $key)) {
+                return $object->{$key};
+            }
+        }
+
+        return null;
+    }
+
+    protected function pluckResourceType($object)
+    {
+        $keys = ['roster', 'breakpoint', 'match', 'bracket'];
+
+        foreach($keys as $key) {
+            if(property_exists($object, $key)) {
+                return $key;
+            }
+        }
+
+        return null;
     }
 }

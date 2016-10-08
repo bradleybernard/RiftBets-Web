@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Scrape\ScrapeController;
 
 use \GuzzleHttp\Exception\ClientException;
+use \GuzzleHttp\Exception\ServerException;
 
 class TeamsController extends ScrapeController
 {
@@ -19,19 +20,17 @@ class TeamsController extends ScrapeController
 
         foreach($teams as $team)
         {
-         	try 
-         	{
+         	try {
                 $response = $this->client->request('GET', 'v1/teams?slug='.$team['slug'].'&tournament='.$team['tournament_id']);
-            } 
-            catch (ClientException $e)
-            {
+            } catch (ClientException $e) {
+                continue;
+            } catch (ServerException $e) {
                 continue;
             }
 
             $response = json_decode((string) $response->getBody());
-            $players = $response->players;
 
-            foreach($players as $player)
+            foreach($response->players as $player)
             {
             	$playerRecords[] = [
             		'api_id'			=> $player->id,
@@ -60,14 +59,12 @@ class TeamsController extends ScrapeController
             				'starter'			=> in_array($player['api_id'], $roster->starters)
             			];            		
             		}
+
             		break;
             	}
         	}
-         }
+        }
 
-
-
-         dd($teamPlayerRecords);
-
+        dd($teamPlayerRecords);
     }
 }

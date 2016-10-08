@@ -8,52 +8,39 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use \GuzzleHttp\Client;
+use \GuzzleHttp\Exception\ClientException;
+use \GuzzleHttp\Exception\ServerException;
 
 use \Carbon\Carbon;
 use DB;
 
 class StatsController extends ScrapeController
 {
+    protected $baseUri = 'https://acs.leagueoflegends.com/';
+
 	public function scrape()
 	{
-
-		$client = new Client([
-		    // Base URI for the timelines, needs {gameHash}
-		    'base_uri' => 'https://acs.leagueoflegends.com/v1/stats/game/TRLH1/',
-		]);
-
+        $gameRealm = 'TRLH1';
 		$gameId = '1001890201';
 		$gameHash = '6751c4ef7ef58654';
 
     	$playerStats = [];
     	$gameEvents = [];
 	            
-	    try 
-	    {
-	    	$response = $client->request('GET', $gameId.'/timeline?gameHash='.$gameHash);
-	    }
-	    catch (ClientException $e)
-	    {
+	    try {
+	    	$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '/timeline?gameHash=' . $gameHash);
+	    } catch (ClientException $e) {
 		    dd($e);
-	    } 
-	    catch (ServerException $e) 
-	    {
+	    } catch (ServerException $e) {
 	        dd($e);
 	    }
 
 	    $response = json_decode((string)$response->getBody());
+        // dd($response->frames[37]);
 
-	    dd($response->frames[37]);
-
-	    $frames = $response->frames;
-
-	    foreach ($frames as $frame) 
+	    foreach ($response->frames as $frame) 
 	    {
-	    	$players = $frame->participantFrames;
-	    	$timeStamp = $frame->timestamp;
-	    	$events = $frame->events;
-
-	    	foreach ($players as $player) 
+	    	foreach ($frame->participantFrames as $player) 
 	    	{
 	    		$playerStats[] = [
 	    			'api_game_id_long'		=> $gameHash,
@@ -69,11 +56,11 @@ class StatsController extends ScrapeController
             		'jungle_minions_killed'	=> $player->jungleMinionsKilled,
             		'dominion_score'		=> $player->dominionScore,
             		'team_score'			=> $player->teamScore,
-            		'game_time_stamp'		=> $timeStamp
+            		'game_time_stamp'		=> $frame->timestamp
             	];
 	    	}
 	    	
-	    	foreach ($events as $event) 
+	    	foreach ($frame->events as $event) 
 	    	{
 	    		$gameEvents[] = [
 	    			'api_game_id_long'		=> $gameHash,
@@ -97,6 +84,7 @@ class StatsController extends ScrapeController
 	    		];
 	    	}
 	    }
+
 	    // dd($gameEvents);
     	DB::table('player_stats')->insert($playerStats);
 		DB::table('events')->insert($gameEvents);
