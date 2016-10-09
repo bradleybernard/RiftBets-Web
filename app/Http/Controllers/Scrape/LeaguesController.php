@@ -16,7 +16,7 @@ class LeaguesController extends ScrapeController
     protected $tables = [
         'leagues', 'teams', 'tournaments', 'rosters',
         'breakpoints', 'breakpoint_resources', 'brackets',
-        'matches', 'games', 'bracket_resources',
+        'matches', 'games', 'bracket_resources', 'bracket_records',
     ];
 
     public function scrape()
@@ -48,6 +48,18 @@ class LeaguesController extends ScrapeController
                     'logo_url'          => $this->pry($league, 'logoUrl'),
                     'api_created_at'    => new Carbon($league->createdAt),
                     'api_updated_at'    => new Carbon($league->updatedAt),
+                ];
+            }
+
+            foreach($response->highlanderRecords as $record) {
+                $insert['bracket_records'][] = [
+                    'api_tournament_id'     => $record->tournament,
+                    'api_bracket_id'        => $record->bracket,
+                    'api_roster_id'         => $record->roster,
+                    'wins'                  => $record->wins,
+                    'losses'                => $record->losses,
+                    'ties'                  => $record->ties,
+                    'score'                 => $record->score,
                 ];
             }
 
@@ -180,6 +192,19 @@ class LeaguesController extends ScrapeController
                         $insert['matches'][] = $record;
 
                         foreach($match->games as $game) {
+                            $insert['games'][] = [
+                                'api_match_id'      => $match->id,
+                                'api_id_long'       => $game->id,
+                                'name'              => $game->name,
+                                'generated_name'    => $game->generatedName,
+                                'game_id'           => $this->pry($game, 'gameId'),
+                                'game_realm'        => $this->pry($game, 'gameRealm'),
+                                'platform_id'       => $this->pry($game, 'platformId'),
+                                'revision'          => $game->revision,
+                            ];
+                        }
+
+                        foreach($match->remadeGames as $game) {
                             $insert['games'][] = [
                                 'api_match_id'      => $match->id,
                                 'api_id_long'       => $game->id,

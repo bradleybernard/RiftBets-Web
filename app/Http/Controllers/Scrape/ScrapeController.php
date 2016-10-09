@@ -51,7 +51,7 @@ class ScrapeController extends Controller
             }
         }
 
-        return $object;
+        return (is_string($object) ? $this->clean($object) : $object);
     }
 
     protected function pluckResource($object)
