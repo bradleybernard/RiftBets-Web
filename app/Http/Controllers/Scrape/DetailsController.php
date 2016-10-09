@@ -8,13 +8,17 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use \GuzzleHttp\Client;
 
+use DB;
+
 class DetailsController extends ScrapeController
 {
     public function scrape()
     {
     	$tournamentId = '3c5fa267-237e-4b16-8e86-20378a47bf1c';
     	$matchId = '0dae40a2-fdcb-4539-9c39-376c545438fb';
-        $matchDetails = [];
+        $gameMappings = [];
+        $matchVideos = [];
+
 
     	try
      	{
@@ -30,28 +34,32 @@ class DetailsController extends ScrapeController
 
         // dd($response);
 
-        $teams = $response->teams;
-        $players = $response->players;
-        $schedule = $response->scheduleItems;
         $videos = $response->videos;
-
+        $mappings = $response->gameIdMappings;
         
 
         foreach ($teams as $team) 
         {
             dd($team->players);
-            $mappings = $teams->players;
-            echo "$mappings";
             foreach ($mappings as $mapping) 
             {
-                $matchDetails[] = [
-                    'api_team_id'       => $team->id,
-                    'team_slug'         => $team->slug,
-                    'team_name'         => $team->name
-                    // 'api_player_id'     => $player->
+                $gameMappings[] = [
+                    'api_match_id'  => $matchId,
+                    'api_id'        => $mapping->id,
+                    'gameHash'      => $mapping->gameHash
                 ];
             }
+
+            // foreach ($videos as $video)
+            // {
+            //     $matchVideos = [
+            //         'video_id'      => $video->id,
+            //         'game_hash'     => $video->gameHash,
+            //     ];
+            // }
             
         }
+
+        DB::table('game_mappings')->insert($gameMappings);
     }
 }
