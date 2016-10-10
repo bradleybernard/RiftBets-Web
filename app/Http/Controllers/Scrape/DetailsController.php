@@ -36,29 +36,25 @@ class DetailsController extends ScrapeController
 
         $videos = $response->videos;
         $mappings = $response->gameIdMappings;
-        
+        $teams = $response->teams;
 
-        foreach ($teams as $team) 
+        // dd($team->players);
+        foreach ($mappings as $mapping) 
         {
-            dd($team->players);
-            foreach ($mappings as $mapping) 
-            {
-                $gameMappings[] = [
-                    'api_match_id'  => $matchId,
-                    'api_id'        => $mapping->id,
-                    'gameHash'      => $mapping->gameHash
-                ];
-            }
-
-            // foreach ($videos as $video)
-            // {
-            //     $matchVideos = [
-            //         'video_id'      => $video->id,
-            //         'game_hash'     => $video->gameHash,
-            //     ];
-            // }
-            
+            $gameMappings[] = [
+                'api_match_id'  => $matchId,
+                'api_game_id'   => $mapping->id,
+                'game_hash'     => $mapping->gameHash
+            ];
         }
+
+        // foreach ($videos as $video)
+        // {
+        //     $matchVideos = [
+        //         'video_id'      => $video->id,
+        //         'game_hash'     => $video->gameHash,
+        //     ];
+        // }
 
         DB::table('game_mappings')->insert($gameMappings);
     }

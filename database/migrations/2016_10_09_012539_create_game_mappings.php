@@ -16,8 +16,9 @@ class CreateGameMappings extends Migration
         Schema::create('game_mappings', function (Blueprint $table) {
             $table->increments('id');
             $table->string('api_match_id');
-            $table->string('api_id');
+            $table->string('api_game_id')->unique();
             $table->string('game_hash');
+            $table->timestamp('created_at');
         });
 
     }
