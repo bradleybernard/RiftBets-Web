@@ -18,7 +18,7 @@ class CreatePlayerStatsTable extends Migration
             $table->increments('id');
             $table->string('api_game_id_long'); //hashed version
             $table->integer('api_game_id');  //int version
-            $table->integer('api_game_player_id');
+            $table->integer('api_match_player_id');
             $table->integer('x_position');
             $table->integer('y_position');
             $table->integer('current_gold');

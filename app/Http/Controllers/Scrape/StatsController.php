@@ -24,6 +24,8 @@ class StatsController extends ScrapeController
 
     	$playerStats = [];
     	$gameEvents = [];
+    	$eventDetails = [];
+    	$count = 1;
 	            
 	    try {
 	    	$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '/timeline?gameHash=' . $gameHash);
@@ -63,29 +65,82 @@ class StatsController extends ScrapeController
 	    		$gameEvents[] = [
 	    			'api_game_id_long'		=> $gameHash,
 	    			'api_game_id'			=> $gameId,
-	    			'api_match_player_id'	=> $this->pry($event, 'participantId'),
             		'event_type'			=> $event->type,
-            		'game_time_stamp'		=> $event->timestamp,
-            		'level_up_type'			=> $this->pry($event, 'levelUpType'),
-            		'ward_type'				=> $this->pry($event, 'wardType'),
-            		'killed_id'				=> $this->pry($event, 'killerId'),
-            		'creator_id'			=> $this->pry($event, 'creatorId'),
-            		'x_position'			=> $this->pry($event, 'position->x'),
-            		'y_position'			=> $this->pry($event, 'position->y'),
-            		'team_id'				=> $this->pry($event, 'teamId'),
-            		'building_type'			=> $this->pry($event, 'buildingType'),
-            		'lane_type'				=> $this->pry($event, 'laneType'),
-            		'tower_type'			=> $this->pry($event, 'towerType'),
-            		'victim_id'				=> $this->pry($event, 'victimId'),
-            		'assisting_player_id'	=> $this->pry($event, 'assistingPlayerId'),
-            		'monster_type'			=> $this->pry($event, 'monsterType')
+            		'game_time_stamp'		=> $event->timestamp
 	    		];
+
+	    		foreach ($event as $key=>$value) 
+	    		{
+	    			if($key == 'type' || $key == 'timestamp')
+	    			{
+	    				continue;
+	    			}
+
+	    			if(is_object($value))
+	    			{
+	    				// dd($value);
+	    				foreach ($value as $objKey => $objValue) 
+	    				{
+	    					// dd($subKey);
+	    					// snake_case(strtolower($string))
+	    					$string = snake_case(strtolower($key.$objKey));
+	    					$eventDetails[] = [
+		    				'event_id'	=> $count,
+		    				'key' 		=> $string,
+		    				'value' 	=> $objValue
+	    				];
+	    				}
+	    			}
+	    			// dd($subKey);
+
+	    			elseif (is_array($value))
+	    			{
+	    				// dd($value[0]);
+	    				foreach ($value as $arrKey => $arrValue) 
+	    				{
+	    					$string = snake_case(strtolower($key.$arrKey));
+	    					// dd($subKey);
+	    					$eventDetails[] = [
+		    				'event_id'	=> $count,
+		    				'key' 		=> $string,
+		    				'value' 	=> $arrValue
+	    				];
+	    				}
+	    			}
+	    			// dd($key);
+	    			else
+		    			$eventDetails[] = [
+		    				'event_id'	=> $count,
+		    				'key' 		=> snake_case(strtolower($key)),
+		    				'value' 	=> $value
+		    			];
+	    		}
+
+	    		// $eventDetails[] = [
+	    		// 	'api_match_player_id'	=> $this->pry($event, 'participantId'),
+	    		// 	'level_up_type'			=> $this->pry($event, 'levelUpType'),
+       //      		'ward_type'				=> $this->pry($event, 'wardType'),
+       //      		'killed_id'				=> $this->pry($event, 'killerId'),
+       //      		'creator_id'			=> $this->pry($event, 'creatorId'),
+       //      		'x_position'			=> $this->pry($event, 'position->x'),
+       //      		'y_position'			=> $this->pry($event, 'position->y'),
+       //      		'team_id'				=> $this->pry($event, 'teamId'),
+       //      		'building_type'			=> $this->pry($event, 'buildingType'),
+       //      		'lane_type'				=> $this->pry($event, 'laneType'),
+       //      		'tower_type'			=> $this->pry($event, 'towerType'),
+       //      		'victim_id'				=> $this->pry($event, 'victimId'),
+       //      		'assisting_player_id'	=> $this->pry($event, 'assistingPlayerId'),
+       //      		'monster_type'			=> $this->pry($event, 'monsterType')
+	    		// ];
+
+	    		$count++;
 	    	}
 	    }
 
-	    // dd($gameEvents);
+	    // dd($eventDetails);
     	DB::table('player_stats')->insert($playerStats);
 		DB::table('events')->insert($gameEvents);
+		DB::table('event_details')->insert($eventDetails);
 	}
 
 }
