@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Scrape;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Scrape\ScrapeController;
-
 use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
 

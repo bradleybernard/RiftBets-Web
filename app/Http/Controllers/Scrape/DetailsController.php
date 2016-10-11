@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers\Scrape;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use \GuzzleHttp\Client;
-
+use \GuzzleHttp\Exception\ClientException;
+use \GuzzleHttp\Exception\ServerException;
 use DB;
 
 class DetailsController extends ScrapeController
@@ -16,30 +12,26 @@ class DetailsController extends ScrapeController
     {
     	$tournamentId = '3c5fa267-237e-4b16-8e86-20378a47bf1c';
     	$matchId = '0dae40a2-fdcb-4539-9c39-376c545438fb';
-        $gameMappings = [];
-        $matchVideos = [];
 
+        $gameMappings = [];
+        // $matchVideos = [];
 
     	try
      	{
-            $response = $this->client->request('GET', 'v2/highlanderMatchDetails?tournamentId='.$tournamentId
-            	.'&matchId='.$matchId);
+            $response = $this->client->request('GET', 'v2/highlanderMatchDetails?tournamentId='. $tournamentId .'&matchId=' . $matchId);
         }
         catch (ClientException $e)
+        {
+            dd($e);
+        }
+        catch (ServerException $e)
         {
             dd($e);
         }
 
         $response = json_decode((string)$response->getBody());
 
-        // dd($response);
-
-        $videos = $response->videos;
-        $mappings = $response->gameIdMappings;
-        $teams = $response->teams;
-
-        // dd($team->players);
-        foreach ($mappings as $mapping) 
+        foreach ($response->gameIdMappings as $mapping) 
         {
             $gameMappings[] = [
                 'api_match_id'  => $matchId,
@@ -48,7 +40,7 @@ class DetailsController extends ScrapeController
             ];
         }
 
-        // foreach ($videos as $video)
+        // foreach ($response->videos as $video)
         // {
         //     $matchVideos = [
         //         'video_id'      => $video->id,

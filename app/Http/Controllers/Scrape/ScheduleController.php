@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Scrape;
 
-use Illuminate\Http\Request;
+use \GuzzleHttp\Exception\ClientException;
+use \GuzzleHttp\Exception\ServerException;
 
-use App\Http\Controllers\Scrape\ScrapeController;
 use \Carbon\Carbon;
 use DB;
 

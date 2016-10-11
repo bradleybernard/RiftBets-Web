@@ -17,7 +17,7 @@ class CreateGameTeamStats extends Migration
         {
             $table->increments('id');
             $table->integer('team_id');
-            $table->string('win');
+            $table->boolean('win');
             $table->boolean('first_blood');
             $table->boolean('first_tower');
             $table->boolean('first_inhibitor');

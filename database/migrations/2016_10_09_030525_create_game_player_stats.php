@@ -21,12 +21,12 @@ class CreateGamePlayerStats extends Migration
             $table->integer('champion_id');
             $table->integer('spell1_id');
             $table->integer('spell2_id');
-            $table->integer('item_1');
-            $table->integer('item_2');
-            $table->integer('item_3');
-            $table->integer('item_4');
-            $table->integer('item_5');
-            $table->integer('item_6');
+            $table->integer('item_1')->nullable();
+            $table->integer('item_2')->nullable();
+            $table->integer('item_3')->nullable();
+            $table->integer('item_4')->nullable();
+            $table->integer('item_5')->nullable();
+            $table->integer('item_6')->nullable();
             $table->integer('kills');
             $table->integer('deaths');
             $table->integer('assists');
@@ -35,7 +35,6 @@ class CreateGamePlayerStats extends Migration
             $table->integer('champ_level');
             $table->string('summoner_name');
             $table->integer('profile_icon');
-            $table->timestamp('created_at');
         });
     }
 

@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers\Scrape;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
 
@@ -15,6 +10,50 @@ use DB;
 class StatsController extends ScrapeController
 {
     protected $baseUri = 'https://acs.leagueoflegends.com/';
+
+    // Ex: $this->collectDetails('participantId', 6);
+    //     ==> [['event_id' => '1', 'key' => 'participant_id', 'value' => '6']]
+    // Ex: $this->collectDetails('position', {'x' => 134866, 'y' => 4505});
+    //     $this->collectDetails('x', 134866, 'position') and $this->collectDetails('y', 4505, 'position')
+    //     ==> [
+    //          ['event_id' => '1', 'key' => 'position_x', 'value' => 134866],
+    //          ['event_id' => '1', 'key' => 'position_y', 'value' => 4505]    
+    //     ]
+    private function collectDetails($key, $value, $prefix = null)
+    {
+        // Loop through all properties/array values if its an array/obj 
+        // and append each of those properties to a collection ($return) and
+        // return that collection of [game_event_details].
+        if(is_array($value) || is_object($value)) {
+            $return = [];
+            foreach($value as $nestedKey => $nestedValue) {
+                $return[] = $this->collectDetails($nestedKey, $nestedValue, strtolower(snake_case($key)));
+            }
+            return $return;
+        } 
+
+        // Not an array/obj so we will just get its key and value.
+        // If it has a prefix, it means it came here from the above loop
+        // so we must also check if the current key is numeric because an array 
+        // has numeric keys so we dont want _0, _1 on our key names so we will just remove 
+        // those keys and keep the prefix. 
+        // Ex: assisting_participant_ids_0, assisting_participant_ids_1 --> assisting_participant_ids (with two rows)
+        if($prefix) {
+            return [
+                'event_id'  => '1',
+                'key'       => $prefix . (is_numeric($key) ? null : '_' . strtolower(snake_case($key))),
+                'value'     => strtolower($value),
+            ];
+        } else {
+            // Since we always want to return a collection of rows we must wrap a single record
+            // in a containing array hence [[]]
+            return [[
+                'event_id'  => '1',
+                'key'       => strtolower(snake_case($key)),
+                'value'     => strtolower($value),
+            ]];
+        }
+    }
 
 	public function scrape()
 	{
@@ -25,7 +64,6 @@ class StatsController extends ScrapeController
     	$playerStats = [];
     	$gameEvents = [];
     	$eventDetails = [];
-    	$count = 1;
 	            
 	    try {
 	    	$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '/timeline?gameHash=' . $gameHash);
@@ -36,7 +74,6 @@ class StatsController extends ScrapeController
 	    }
 
 	    $response = json_decode((string)$response->getBody());
-        // dd($response->frames[37]);
 
 	    foreach ($response->frames as $frame) 
 	    {
@@ -60,87 +97,37 @@ class StatsController extends ScrapeController
             	];
 	    	}
 	    	
+            $skip = ['type', 'timestamp'];
+
 	    	foreach ($frame->events as $event) 
 	    	{
 	    		$gameEvents[] = [
-	    			'api_game_id_long'		=> $gameHash,
-	    			'api_game_id'			=> $gameId,
-            		'event_type'			=> $event->type,
-            		'game_time_stamp'		=> $event->timestamp
+                    'api_game_id'           => $gameId,
+	    			'game_hash'		        => $gameHash,
+            		'type'			        => strtolower($event->type),
+            		'timestamp'		        => $event->timestamp
 	    		];
 
-	    		foreach ($event as $key=>$value) 
+	    		foreach ($event as $eventKey => $eventValue) 
 	    		{
-	    			if($key == 'type' || $key == 'timestamp')
-	    			{
-	    				continue;
-	    			}
+	    			if(in_array($eventKey, $skip)) {
+                        continue;
+                    }
 
-	    			if(is_object($value))
-	    			{
-	    				// dd($value);
-	    				foreach ($value as $objKey => $objValue) 
-	    				{
-	    					// dd($subKey);
-	    					// snake_case(strtolower($string))
-	    					$string = snake_case(strtolower($key.$objKey));
-	    					$eventDetails[] = [
-		    				'event_id'	=> $count,
-		    				'key' 		=> $string,
-		    				'value' 	=> $objValue
-	    				];
-	    				}
-	    			}
-	    			// dd($subKey);
-
-	    			elseif (is_array($value))
-	    			{
-	    				// dd($value[0]);
-	    				foreach ($value as $arrKey => $arrValue) 
-	    				{
-	    					$string = snake_case(strtolower($key.$arrKey));
-	    					// dd($subKey);
-	    					$eventDetails[] = [
-		    				'event_id'	=> $count,
-		    				'key' 		=> $string,
-		    				'value' 	=> $arrValue
-	    				];
-	    				}
-	    			}
-	    			// dd($key);
-	    			else
-		    			$eventDetails[] = [
-		    				'event_id'	=> $count,
-		    				'key' 		=> snake_case(strtolower($key)),
-		    				'value' 	=> $value
-		    			];
-	    		}
-
-	    		// $eventDetails[] = [
-	    		// 	'api_match_player_id'	=> $this->pry($event, 'participantId'),
-	    		// 	'level_up_type'			=> $this->pry($event, 'levelUpType'),
-       //      		'ward_type'				=> $this->pry($event, 'wardType'),
-       //      		'killed_id'				=> $this->pry($event, 'killerId'),
-       //      		'creator_id'			=> $this->pry($event, 'creatorId'),
-       //      		'x_position'			=> $this->pry($event, 'position->x'),
-       //      		'y_position'			=> $this->pry($event, 'position->y'),
-       //      		'team_id'				=> $this->pry($event, 'teamId'),
-       //      		'building_type'			=> $this->pry($event, 'buildingType'),
-       //      		'lane_type'				=> $this->pry($event, 'laneType'),
-       //      		'tower_type'			=> $this->pry($event, 'towerType'),
-       //      		'victim_id'				=> $this->pry($event, 'victimId'),
-       //      		'assisting_player_id'	=> $this->pry($event, 'assistingPlayerId'),
-       //      		'monster_type'			=> $this->pry($event, 'monsterType')
-	    		// ];
-
-	    		$count++;
+                    // Gather collection of [game_event_details]. There is either
+                    // a single record in the collection or multiple records.
+                    // Either way we loop thru the collection and append each
+                    // record to the eventDetails array
+                    $records = $this->collectDetails($eventKey, $eventValue);
+                    foreach($records as $record) {
+                        $eventDetails[] = $record;
+                    }
+                }
 	    	}
 	    }
 
-	    // dd($eventDetails);
     	DB::table('player_stats')->insert($playerStats);
-		DB::table('events')->insert($gameEvents);
-		DB::table('event_details')->insert($eventDetails);
+		DB::table('game_events')->insert($gameEvents);
+		DB::table('game_event_details')->insert($eventDetails);
 	}
-
 }

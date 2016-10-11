@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Scrape;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use \GuzzleHttp\Exception\ClientException;
+use \GuzzleHttp\Exception\ServerException;
 
 use DB;
 
@@ -13,17 +11,27 @@ class GameStatsController extends ScrapeController
 {
 	protected $baseUri = 'https://acs.leagueoflegends.com/';
 
+	private function cleanItem($itemId) 
+	{
+		return ($itemId == 0 ? null : $itemId);
+	}
+
+	private function parseWin($win)
+	{
+		return ($win == 'Fail' ? false : true);
+	}
+
 	public function scrape()
 	{
 		$gameRealm = 'TRLH1';
 		$gameId = '1001890201';
 		$gameHash = '6751c4ef7ef58654';
+
 		$gameStats = [];
 		$teamStats = [];
 		$playerStats = [];
 
-		try 
-		{
+		try {
     		$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '?gameHash=' . $gameHash);
 	    } catch (ClientException $e) {
 		    dd($e);
@@ -32,13 +40,9 @@ class GameStatsController extends ScrapeController
 	    }
 
 	    $response = json_decode((string)$response->getBody());
-	    // dd($response);
-	    $teams = $response->teams;
-	    $players = $response->participants;
-	    $playerId = $response->participantIdentities;
 
 	    $gameStats = [
-	    	'game_id'		=> $response->gameId,
+	    	'game_id'		=>  $response->gameId,
 	    	'platform_id'	=>	$response->platformId,
 	    	'game_creation'	=>	$response->gameCreation,
 	    	'game_duration'	=>	$response->gameDuration,
@@ -50,11 +54,11 @@ class GameStatsController extends ScrapeController
 	    	'game_type'		=>	$response->gameType
 	    ];
 
-	    foreach ($teams as $team) 
+	    foreach ($response->teams as $team) 
 	    {
 	    	$teamStats[] = [
 		    	'team_id'				=> $team->teamId,
-		    	'win'					=> $team->win,
+		    	'win'					=> $this->parseWin($team->win),
 		    	'first_blood'			=> $team->firstBlood,
 		    	'first_tower'			=> $team->firstTower,
 		    	'first_inhibitor'		=> $team->firstInhibitor,
@@ -77,9 +81,9 @@ class GameStatsController extends ScrapeController
 	    	];
 	    }
 
-	    $increment = 0;
+	    $index = 0;
 
-	    foreach ($players as $player) 
+	    foreach ($response->participants as $player) 
 	    {
 	    	$playerStats[] = [
 		    	'participant_id'		=> $player->participantId,
@@ -87,20 +91,20 @@ class GameStatsController extends ScrapeController
 		    	'champion_id'			=> $player->championId,
 		    	'spell1_id'				=> $player->spell1Id,
 		    	'spell2_id'				=> $player->spell2Id,
-		    	'item_1'				=> $player->stats->item0,
-		    	'item_2'				=> $player->stats->item1,
-		    	'item_3'				=> $player->stats->item2,
-		    	'item_4'				=> $player->stats->item3,
-		    	'item_5'				=> $player->stats->item4,
-		    	'item_6'				=> $player->stats->item5,
+		    	'item_1'				=> $this->cleanItem($player->stats->item0),
+		    	'item_2'				=> $this->cleanItem($player->stats->item1),
+		    	'item_3'				=> $this->cleanItem($player->stats->item2),
+		    	'item_4'				=> $this->cleanItem($player->stats->item3),
+		    	'item_5'				=> $this->cleanItem($player->stats->item4),
+		    	'item_6'				=> $this->cleanItem($player->stats->item5),
 		    	'kills'					=> $player->stats->kills,
 		    	'deaths'				=> $player->stats->deaths,
 		    	'assists'				=> $player->stats->assists,
 		    	'gold_earned'			=> $player->stats->goldEarned,
 		    	'minions_killed'		=> $player->stats->totalMinionsKilled,
 		    	'champ_level'			=> $player->stats->champLevel,
-		    	'summoner_name'			=> $playerId[$increment]->player->summonerName,
-		    	'profile_icon'			=> $playerId[$increment++]->player->profileIcon
+		    	'summoner_name'			=> $response->participantIdentities[$index]->player->summonerName,
+		    	'profile_icon'			=> $response->participantIdentities[$index++]->player->profileIcon
 	    	];
 	    }
 

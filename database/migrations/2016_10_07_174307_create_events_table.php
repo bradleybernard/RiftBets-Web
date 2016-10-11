@@ -13,13 +13,13 @@ class CreateEventsTable extends Migration
      */
     public function up()
     {
-        Schema::create('events', function (Blueprint $table) 
+        Schema::create('game_events', function (Blueprint $table) 
         {
             $table->increments('id');
-            $table->string('api_game_id_long'); //hashed version
-            $table->integer('api_game_id');  //int version
-            $table->string('event_type');
-            $table->integer('game_time_stamp');
+            $table->integer('api_game_id')->unsigned();  //int version
+            $table->string('game_hash'); //hashed version
+            $table->string('type');
+            $table->integer('timestamp');
         });
     }
 
@@ -30,6 +30,6 @@ class CreateEventsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('events');
+        Schema::dropIfExists('game_events');
     }
 }
