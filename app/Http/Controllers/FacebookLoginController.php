@@ -25,18 +25,18 @@ class FacebookLoginController extends Controller
 
 		$userNode = $response->getGraphUser();
 		
-		$users = [
+		$user = [
             'facebook_id' => $userNode->getId(),
             'name'   	  => $userNode->getName(),
             'email'       => $userNode->getEmail(),
-            'points'	  => 0
+            'credit'	  => 0
         ]; 
 
         $exists = DB::table('users')->where('facebook_id', $userNode->getId())->first();
 
 		if(!$exists)
    		{
-        	DB::table('users')->insert($users);
+        	DB::table('users')->insert($user);
         }
         
     }
