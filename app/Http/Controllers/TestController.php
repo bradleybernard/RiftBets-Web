@@ -3,27 +3,31 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-
 use App\Http\Requests;
+
+use App\User;
+use JWTAuth;
 use DB;
-use Dingo\Api\Routing\Helpers;
 
-
-class TestController extends Controller implements AuthenticatableContract
+class TestController extends Controller
 {
-	use Helpers;
-	use Authenticatable;
+    public function generate(Request $request)
+    {
+        if(!$user = User::where('id', 1)->first()) {
+            $user = User::create([
+                'facebook_id'   => '1',
+                'name'          => 'travis',
+                'credit'        => 1,
+            ]);
+        }
 
-	public function __construct()
-	{
-        $this->middleware('api.auth');
-
-        // Only apply to a subset of methods.
-        $this->middleware('api.auth', ['only' => ['test']]);
-	}
+        $token = JWTAuth::fromUser($user);
+        
+        return $this->response->array([
+            'token' => $token,
+            'user'  => $user,
+        ]);
+    }
 
     public function test()
     {

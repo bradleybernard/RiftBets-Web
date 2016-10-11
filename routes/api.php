@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,17 +16,14 @@ $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) 
 {
-	$api->get('/test', 'App\Http\Controllers\TestController@test');
-	$api->get('user', ['middleware' => 'api.auth', function () 
-	{
-        // This route requires authentication.
-        $user = app('Dingo\Api\Auth\Auth')->user();
+    $api->post('auth/facebook', 'App\Http\Controllers\FacebookController@facebook');
 
-        return $user;
+	$api->get('test', 'App\Http\Controllers\TestController@test');
+    $api->get('token', 'App\Http\Controllers\TestController@generate');
+
+	$api->get('user', ['middleware' => 'api.auth', function () {
+        // This route requires authentication.
+        return app('Dingo\Api\Auth\Auth')->user();
     }]);
 
-    $api->get('posts', function () 
-    {
-        // This route does not require authentication.
-    });
 });
