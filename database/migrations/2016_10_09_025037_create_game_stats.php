@@ -26,7 +26,7 @@ class CreateGameStats extends Migration
             $table->string('game_version');
             $table->string('game_mode');
             $table->string('game_type');
-            $table->datetime('created_at');
+            $table->timestamp('created_at');
         });
     }
 
