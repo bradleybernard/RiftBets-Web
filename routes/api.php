@@ -19,4 +19,16 @@ $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) 
 {
 	$api->get('/test', 'App\Http\Controllers\TestController@test');
+	$api->get('user', ['middleware' => 'api.auth', function () 
+	{
+        // This route requires authentication.
+        $user = app('Dingo\Api\Auth\Auth')->user();
+
+        return $user;
+    }]);
+
+    $api->get('posts', function () 
+    {
+        // This route does not require authentication.
+    });
 });

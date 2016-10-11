@@ -163,11 +163,14 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+
         /*
          * Package Service Providers...
          */
 
         Barryvdh\Debugbar\ServiceProvider::class,
+        'Tymon\JWTAuth\Providers\JWTAuthServiceProvider',
+
 
         Dingo\Api\Provider\LaravelServiceProvider::class,
 
@@ -234,6 +237,11 @@ return [
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
 
         'Facebook' => SammyK\LaravelFacebookSdk\FacebookFacade::class,
+
+        'JWTAuth' => 'Tymon\JWTAuth\Facades\JWTAuth',
+        'JWTFactory' => 'Tymon\JWTAuth\Facades\JWTFactory',
+
+
 
     ],
 
