@@ -35,7 +35,7 @@ class CreateGamePlayerStats extends Migration
             $table->integer('champ_level');
             $table->string('summoner_name');
             $table->integer('profile_icon');
-            $table->datetime('created_at');
+            $table->timestamp('created_at');
         });
     }
 
