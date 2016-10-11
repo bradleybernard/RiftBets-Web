@@ -17,8 +17,6 @@ class FacebookLoginController extends Controller
     	$fb = app(\SammyK\LaravelFacebookSdk\LaravelFacebookSdk::class);
     	$accessToken = $request['facebook_access_token'];
 
-    	$users = [];
-
     	try {
   			$response = $fb->get('/me?fields=id,name,email', $accessToken);
 		} catch(\Facebook\Exceptions\FacebookSDKException $e) {
@@ -27,7 +25,7 @@ class FacebookLoginController extends Controller
 
 		$userNode = $response->getGraphUser();
 		
-		$users[] = [
+		$users = [
             'facebook_id' => $userNode->getId(),
             'name'   	  => $userNode->getName(),
             'email'       => $userNode->getEmail(),
