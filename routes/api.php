@@ -18,6 +18,7 @@ $api->version('v1', function ($api)
 {
     $api->post('auth/facebook', 'App\Http\Controllers\FacebookController@facebook');
 
+    $api->get('query', 'App\Http\Controllers\TestController@query');
 	$api->get('test', 'App\Http\Controllers\TestController@test');
     $api->get('token', 'App\Http\Controllers\TestController@generate');
     $api->get('authenticate', 'App\Http\Controllers\TestController@authenticate');
