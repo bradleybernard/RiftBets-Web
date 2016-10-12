@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePlayerStatsTable extends Migration
+class CreatePerFramePlayerStatsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatePlayerStatsTable extends Migration
      */
     public function up()
     {
-        Schema::create('player_stats', function (Blueprint $table) 
+        Schema::create('per_frame_player_stats', function (Blueprint $table) 
         {
             $table->increments('id');
             $table->string('api_game_id_long'); //hashed version
@@ -40,7 +40,7 @@ class CreatePlayerStatsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('player_stats');
+        Schema::dropIfExists('per_frame_player_stats');
 
     }
 }

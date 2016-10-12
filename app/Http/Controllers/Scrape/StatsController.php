@@ -126,7 +126,7 @@ class StatsController extends ScrapeController
 	    	}
 	    }
 
-    	DB::table('player_stats')->insert($playerStats);
+    	DB::table('per_frame_player_stats')->insert($playerStats);
 		DB::table('game_events')->insert($gameEvents);
 		DB::table('game_event_details')->insert($eventDetails);
 	}
