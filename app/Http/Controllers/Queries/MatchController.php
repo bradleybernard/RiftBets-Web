@@ -11,6 +11,7 @@ class MatchController extends Controller
 {
     public function query()
     {
+    	// rows contains the stats of each player during a given game
     	$rows = DB::table('matches')
     		->join('games', 'games.api_match_id', '=', 'matches.api_id_long')
     		->select('game_player_stats.*')
@@ -28,6 +29,8 @@ class MatchController extends Controller
     		->join('game_event_details', 'game_event_details.event_id', "=", 'game_events.id')
     		->get();
 
-    	dd($events[0]);
+		$matchDetails = DB::table('')
+
+    	dd($matches);
     }
 }
