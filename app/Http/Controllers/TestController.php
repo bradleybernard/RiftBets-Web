@@ -48,6 +48,8 @@ class TestController extends Controller
 
         $rosters = $filtered->pluck('api_resource_id_one')->union($filtered->pluck('api_resource_id_two'))->unique();
 
+        // dd($rosters);
+
         $columns = [
             'rosters.api_id_long', 'teams.name', 'teams.team_photo_url', 'teams.logo_url', 
             'teams.acronym', 'teams.alt_logo_url', 'teams.slug'
@@ -58,6 +60,7 @@ class TestController extends Controller
             ->whereIn('rosters.api_id_long', $rosters->all())
             ->get()
             ->keyBy('api_id_long');
+        // dd($teams);
 
         $rows->transform(function ($item, $key) use ($teams) {
             $item->resources = [

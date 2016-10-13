@@ -16,6 +16,7 @@ class CreateGamePlayerStats extends Migration
         Schema::create('game_player_stats', function (Blueprint $table) 
         {
             $table->increments('id');
+            $table->integer('game_id');
             $table->integer('participant_id');
             $table->integer('team_id');
             $table->integer('champion_id');

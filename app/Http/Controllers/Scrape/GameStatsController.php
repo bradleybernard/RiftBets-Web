@@ -57,6 +57,7 @@ class GameStatsController extends ScrapeController
 	    foreach ($response->teams as $team) 
 	    {
 	    	$teamStats[] = [
+	    		'game_id'				=> $gameId,
 		    	'team_id'				=> $team->teamId,
 		    	'win'					=> $this->parseWin($team->win),
 		    	'first_blood'			=> $team->firstBlood,
@@ -86,6 +87,7 @@ class GameStatsController extends ScrapeController
 	    foreach ($response->participants as $player) 
 	    {
 	    	$playerStats[] = [
+	    		'game_id'				=> $gameId,
 		    	'participant_id'		=> $player->participantId,
 		    	'team_id'				=> $player->teamId,
 		    	'champion_id'			=> $player->championId,

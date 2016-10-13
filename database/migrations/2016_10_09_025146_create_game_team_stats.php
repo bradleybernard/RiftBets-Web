@@ -16,6 +16,7 @@ class CreateGameTeamStats extends Migration
         Schema::create('game_team_stats', function (Blueprint $table) 
         {
             $table->increments('id');
+            $table->integer('game_id');
             $table->integer('team_id');
             $table->boolean('win');
             $table->boolean('first_blood');
