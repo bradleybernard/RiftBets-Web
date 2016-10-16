@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Scrape;
 
 use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
-use DB;
 
-class DetailsController extends ScrapeController
+use DB;
+use Log;
+
+class MatchDetailsController extends ScrapeController
 {
     public function scrape()
     {
@@ -14,19 +16,13 @@ class DetailsController extends ScrapeController
     	$matchId = '0dae40a2-fdcb-4539-9c39-376c545438fb';
 
         $gameMappings = [];
-        // $matchVideos = [];
 
-    	try
-     	{
+    	try {
             $response = $this->client->request('GET', 'v2/highlanderMatchDetails?tournamentId='. $tournamentId .'&matchId=' . $matchId);
-        }
-        catch (ClientException $e)
-        {
-            dd($e);
-        }
-        catch (ServerException $e)
-        {
-            dd($e);
+        } catch (ClientException $e) {
+            Log::error($e->getMessage()); continue;
+        } catch (ServerException $e) {
+            Log::error($e->getMessage()); continue;
         }
 
         $response = json_decode((string)$response->getBody());
@@ -39,14 +35,6 @@ class DetailsController extends ScrapeController
                 'game_hash'     => $mapping->gameHash
             ];
         }
-
-        // foreach ($response->videos as $video)
-        // {
-        //     $matchVideos = [
-        //         'video_id'      => $video->id,
-        //         'game_hash'     => $video->gameHash,
-        //     ];
-        // }
 
         DB::table('game_mappings')->insert($gameMappings);
     }

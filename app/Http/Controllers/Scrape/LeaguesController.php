@@ -7,6 +7,7 @@ use \GuzzleHttp\Exception\ServerException;
 
 use \Carbon\Carbon;
 use DB;
+use Log;
 
 class LeaguesController extends ScrapeController
 {
@@ -18,8 +19,6 @@ class LeaguesController extends ScrapeController
 
     public function scrape()
     {
-        $this->reset();
-
         $leagues = [9];
 
         foreach($leagues as $index) {
@@ -27,9 +26,9 @@ class LeaguesController extends ScrapeController
             try {
                 $response = $this->client->request('GET', 'v1/leagues', ['query' => ['id' => $index]]);
             } catch (ClientException $e) {
-                continue;
+                Log::error($e->getMessage()); continue;
             } catch (ServerException $e) {
-                continue;
+                Log::error($e->getMessage()); continue;
             }
 
             $response = json_decode((string) $response->getBody());

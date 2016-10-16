@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Console\Commands;
+
 use Illuminate\Http\Request;
-
-
 use Illuminate\Console\Command;
 
 class Scrape extends Command
@@ -20,7 +19,7 @@ class Scrape extends Command
      *
      * @var string
      */
-    protected $description = 'Scrapes all needed sites for testing queries';
+    protected $description = 'Scrapes all riot/match history data for initial setup.';
 
     /**
      * Create a new command instance.
@@ -39,17 +38,10 @@ class Scrape extends Command
      */
     public function handle()
     {
-        $controller = app()->make('App\Http\Controllers\Scrape\LeaguesController');
-        $controller->scrape();
-        $controller = app()->make('App\Http\Controllers\Scrape\DetailsController');
-        $controller->scrape();
-        $controller = app()->make('App\Http\Controllers\Scrape\GameStatsController');
-        $controller->scrape();
-        $controller = app()->make('App\Http\Controllers\Scrape\StatsController');
-        $controller->scrape();
-        $controller = app()->make('App\Http\Controllers\Scrape\TeamsController');
-        $controller->scrape();
-        $controller = app()->make('App\Http\Controllers\Scrape\ScheduleController');
-        $controller->scrape();
+        $controllers = ['Leagues', 'MatchDetails', 'GameStats', 'Timeline', 'Players', 'Schedule'];
+
+        foreach($controllers as $controller) {
+            app()->make('App\Http\Controllers\Scrape\\' . $controller . 'Controller')->scrape();
+        }
     }
 }

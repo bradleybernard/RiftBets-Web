@@ -6,8 +6,9 @@ use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
 
 use DB;
+use Log;
 
-class StatsController extends ScrapeController
+class TimelineController extends ScrapeController
 {
     protected $baseUri = 'https://acs.leagueoflegends.com/';
 
@@ -68,9 +69,9 @@ class StatsController extends ScrapeController
 	    try {
 	    	$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '/timeline?gameHash=' . $gameHash);
 	    } catch (ClientException $e) {
-		    dd($e);
+		    Log::error($e->getMessage()); continue;
 	    } catch (ServerException $e) {
-	        dd($e);
+	        Log::error($e->getMessage()); continue;
 	    }
 
 	    $response = json_decode((string)$response->getBody());

@@ -12,9 +12,9 @@
 */
 
 Route::get('scrape/leagues', 'Scrape\LeaguesController@scrape');
-Route::get('scrape/teams', 'Scrape\TeamsController@scrape');
-Route::get('scrape/stats', 'Scrape\StatsController@scrape');
-Route::get('scrape/details', 'Scrape\DetailsController@scrape');
+Route::get('scrape/players', 'Scrape\PlayersController@scrape');
+Route::get('scrape/timeline', 'Scrape\TimelineController@scrape');
+Route::get('scrape/matchdetails', 'Scrape\MatchDetailsController@scrape');
 Route::get('scrape/gamestats', 'Scrape\GameStatsController@scrape');
 Route::get('scrape/schedule', 'Scrape\ScheduleController@scrape');
 Route::get('queries/match', 'Queries\MatchController@query');

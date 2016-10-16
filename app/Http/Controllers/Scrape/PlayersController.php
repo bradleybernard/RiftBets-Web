@@ -7,15 +7,14 @@ use \GuzzleHttp\Exception\ServerException;
 
 use \Carbon\Carbon;
 use DB;
+use Log;
 
-class TeamsController extends ScrapeController
+class PlayersController extends ScrapeController
 {
     protected $tables = ['players', 'team_players'];
 
     public function scrape() 
     {
-        $this->reset();
-
         $teams = DB::table('rosters')->join('teams', 'rosters.api_team_id', '=', 'teams.api_id')
                     ->select(['api_id', 'api_tournament_id', 'slug'])
                     ->where('api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')
@@ -28,9 +27,9 @@ class TeamsController extends ScrapeController
             try {
                 $response = $this->client->request('GET', 'v1/teams?slug=' . $team->slug . '&tournament=' . $team->api_tournament_id);
             } catch (ClientException $e) {
-                continue;
+                Log::error($e->getMessage()); continue;
             } catch (ServerException $e) {
-                continue;
+                Log::error($e->getMessage()); continue;
             }
 
             $response = json_decode((string) $response->getBody());
