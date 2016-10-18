@@ -20,9 +20,9 @@ class MatchDetailsController extends ScrapeController
     	try {
             $response = $this->client->request('GET', 'v2/highlanderMatchDetails?tournamentId='. $tournamentId .'&matchId=' . $matchId);
         } catch (ClientException $e) {
-            Log::error($e->getMessage()); continue;
+            // Log::error($e->getMessage()); continue;
         } catch (ServerException $e) {
-            Log::error($e->getMessage()); continue;
+            // Log::error($e->getMessage()); continue;
         }
 
         $response = json_decode((string)$response->getBody());

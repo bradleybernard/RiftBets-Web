@@ -17,14 +17,16 @@ class LeaguesController extends ScrapeController
         'matches', 'games', 'bracket_resources', 'bracket_records',
     ];
 
+    const WORLDS_2016_LEAGUE = 9;
+
     public function scrape()
     {
-        $leagues = [9];
+        $leagues = [self::WORLDS_2016_LEAGUE];
 
         foreach($leagues as $index) {
             
             try {
-                $response = $this->client->request('GET', 'v1/leagues', ['query' => ['id' => $index]]);
+                $response = $this->client->request('GET', 'v1/leagues?id=' . $index);
             } catch (ClientException $e) {
                 Log::error($e->getMessage()); continue;
             } catch (ServerException $e) {
@@ -238,5 +240,13 @@ class LeaguesController extends ScrapeController
         });
 
         DB::table('teams')->insert($insert->toArray());
+    }
+
+    private function keys()
+    {
+        // return [
+        //     'leagues'           => 'api_id', 
+        //     'bracket_records'   => ''
+        // ];
     }
 }

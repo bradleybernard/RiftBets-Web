@@ -12,50 +12,6 @@ class TimelineController extends ScrapeController
 {
     protected $baseUri = 'https://acs.leagueoflegends.com/';
 
-    // Ex: $this->collectDetails('participantId', 6);
-    //     ==> [['event_id' => '1', 'key' => 'participant_id', 'value' => '6']]
-    // Ex: $this->collectDetails('position', {'x' => 134866, 'y' => 4505});
-    //     $this->collectDetails('x', 134866, 'position') and $this->collectDetails('y', 4505, 'position')
-    //     ==> [
-    //          ['event_id' => '1', 'key' => 'position_x', 'value' => 134866],
-    //          ['event_id' => '1', 'key' => 'position_y', 'value' => 4505]    
-    //     ]
-    private function collectDetails($key, $value, $prefix = null)
-    {
-        // Loop through all properties/array values if its an array/obj 
-        // and append each of those properties to a collection ($return) and
-        // return that collection of [game_event_details].
-        if(is_array($value) || is_object($value)) {
-            $return = [];
-            foreach($value as $nestedKey => $nestedValue) {
-                $return[] = $this->collectDetails($nestedKey, $nestedValue, strtolower(snake_case($key)));
-            }
-            return $return;
-        } 
-
-        // Not an array/obj so we will just get its key and value.
-        // If it has a prefix, it means it came here from the above loop
-        // so we must also check if the current key is numeric because an array 
-        // has numeric keys so we dont want _0, _1 on our key names so we will just remove 
-        // those keys and keep the prefix. 
-        // Ex: assisting_participant_ids_0, assisting_participant_ids_1 --> assisting_participant_ids (with two rows)
-        if($prefix) {
-            return [
-                'event_id'  => '1',
-                'key'       => $prefix . (is_numeric($key) ? null : '_' . strtolower(snake_case($key))),
-                'value'     => strtolower($value),
-            ];
-        } else {
-            // Since we always want to return a collection of rows we must wrap a single record
-            // in a containing array hence [[]]
-            return [[
-                'event_id'  => '1',
-                'key'       => strtolower(snake_case($key)),
-                'value'     => strtolower($value),
-            ]];
-        }
-    }
-
 	public function scrape()
 	{
         $gameRealm = 'TRLH1';
@@ -69,9 +25,9 @@ class TimelineController extends ScrapeController
 	    try {
 	    	$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '/timeline?gameHash=' . $gameHash);
 	    } catch (ClientException $e) {
-		    Log::error($e->getMessage()); continue;
+		    // Log::error($e->getMessage()); continue;
 	    } catch (ServerException $e) {
-	        Log::error($e->getMessage()); continue;
+	        // Log::error($e->getMessage()); continue;
 	    }
 
 	    $response = json_decode((string)$response->getBody());
@@ -131,4 +87,48 @@ class TimelineController extends ScrapeController
 		DB::table('game_events')->insert($gameEvents);
 		DB::table('game_event_details')->insert($eventDetails);
 	}
+
+    // Ex: $this->collectDetails('participantId', 6);
+    //     ==> [['event_id' => '1', 'key' => 'participant_id', 'value' => '6']]
+    // Ex: $this->collectDetails('position', {'x' => 134866, 'y' => 4505});
+    //     $this->collectDetails('x', 134866, 'position') and $this->collectDetails('y', 4505, 'position')
+    //     ==> [
+    //          ['event_id' => '1', 'key' => 'position_x', 'value' => 134866],
+    //          ['event_id' => '1', 'key' => 'position_y', 'value' => 4505]    
+    //     ]
+    private function collectDetails($key, $value, $prefix = null)
+    {
+        // Loop through all properties/array values if its an array/obj 
+        // and append each of those properties to a collection ($return) and
+        // return that collection of [game_event_details].
+        if(is_array($value) || is_object($value)) {
+            $return = [];
+            foreach($value as $nestedKey => $nestedValue) {
+                $return[] = $this->collectDetails($nestedKey, $nestedValue, strtolower(snake_case($key)));
+            }
+            return $return;
+        } 
+
+        // Not an array/obj so we will just get its key and value.
+        // If it has a prefix, it means it came here from the above loop
+        // so we must also check if the current key is numeric because an array 
+        // has numeric keys so we dont want _0, _1 on our key names so we will just remove 
+        // those keys and keep the prefix. 
+        // Ex: assisting_participant_ids_0, assisting_participant_ids_1 --> assisting_participant_ids (with two rows)
+        if($prefix) {
+            return [
+                'event_id'  => '1',
+                'key'       => $prefix . (is_numeric($key) ? null : '_' . strtolower(snake_case($key))),
+                'value'     => strtolower($value),
+            ];
+        } else {
+            // Since we always want to return a collection of rows we must wrap a single record
+            // in a containing array hence [[]]
+            return [[
+                'event_id'  => '1',
+                'key'       => strtolower(snake_case($key)),
+                'value'     => strtolower($value),
+            ]];
+        }
+    }
 }

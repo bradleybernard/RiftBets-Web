@@ -21,6 +21,42 @@ class ScrapeController extends Controller
         $this->client = new Client($options);
     }
 
+    protected function insertUnique($table, $keys, $rows)
+    {
+        $rows = collect($rows); 
+
+        if($rows->count() < 1) {
+            throw new Exception('Bad data given to insertUnique($table, $key, $rows)');
+        }
+
+        $filter = collect([]);
+
+        foreach($rows as $row) {
+            foreach($keys as $key) {
+                if(property_exists($row, $key)) {
+                    $filter->push([
+                        'key'   => $key,
+                        'value' => $row->{$key}
+                    ]);
+                }
+            }
+        }
+
+        $filter->groupBy('key');
+    
+        $match = DB::table($table)->select($keys);
+
+        foreach($keys as $key) {
+            $match = $match->whereIn($key, $filter->get($key));
+        }
+
+        $new = $rows->reject(function ($value, $index) use ($match) {
+            return in_array($value[$key], $match);
+        });
+
+        DB::table($table)->insert($new->toArray());
+    }
+
     protected function reset()
     {
         foreach($this->tables as $table) {

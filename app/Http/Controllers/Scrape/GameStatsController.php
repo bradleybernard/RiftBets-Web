@@ -12,16 +12,6 @@ class GameStatsController extends ScrapeController
 {
 	protected $baseUri = 'https://acs.leagueoflegends.com/';
 
-	private function cleanItem($itemId) 
-	{
-		return ($itemId == 0 ? null : $itemId);
-	}
-
-	private function parseWin($win)
-	{
-		return ($win == 'Fail' ? false : true);
-	}
-
 	public function scrape()
 	{
 		$gameRealm = 'TRLH1';
@@ -35,9 +25,9 @@ class GameStatsController extends ScrapeController
 		try {
     		$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '?gameHash=' . $gameHash);
 	    } catch (ClientException $e) {
-		    Log::error($e->getMessage()); continue;
+		    // Log::error($e->getMessage()); continue;
 	    } catch (ServerException $e) {
-	        Log::error($e->getMessage()); continue;
+	        // Log::error($e->getMessage()); continue;
 	    }
 
 	    $response = json_decode((string)$response->getBody());
@@ -114,5 +104,15 @@ class GameStatsController extends ScrapeController
 	    DB::table('game_stats')->insert($gameStats);
 	    DB::table('game_team_stats')->insert($teamStats);
 	    DB::table('game_player_stats')->insert($playerStats);
+	}
+
+	private function cleanItem($itemId) 
+	{
+		return ($itemId == 0 ? null : $itemId);
+	}
+
+	private function parseWin($win)
+	{
+		return ($win == 'Fail' ? false : true);
 	}
 }
