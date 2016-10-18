@@ -20,6 +20,7 @@ class CreateEventsTable extends Migration
             $table->string('game_hash'); //hashed version
             $table->string('type');
             $table->integer('timestamp');
+            $table->bigInteger('unique_id')->unique();
         });
     }
 

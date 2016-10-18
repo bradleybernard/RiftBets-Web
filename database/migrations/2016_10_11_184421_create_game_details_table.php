@@ -16,7 +16,7 @@ class CreateGameDetailsTable extends Migration
         Schema::create('game_event_details', function (Blueprint $table) 
         {
             $table->increments('id');
-            $table->integer('event_id');
+            $table->bigInteger('event_unique_id');
             $table->string('key');
             $table->string('value');
         });

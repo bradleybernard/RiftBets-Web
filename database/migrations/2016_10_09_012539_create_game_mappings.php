@@ -17,6 +17,7 @@ class CreateGameMappings extends Migration
             $table->increments('id');
             $table->string('api_match_id');
             $table->string('api_game_id')->unique();
+            $table->integer('game_id');
             $table->string('game_hash');
             $table->timestamp('created_at');
         });

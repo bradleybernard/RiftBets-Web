@@ -25,9 +25,9 @@ class GameStatsController extends ScrapeController
 		try {
     		$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '?gameHash=' . $gameHash);
 	    } catch (ClientException $e) {
-		    // Log::error($e->getMessage()); continue;
+		    Log::error($e->getMessage()); return;
 	    } catch (ServerException $e) {
-	        // Log::error($e->getMessage()); continue;
+	        Log::error($e->getMessage()); return;
 	    }
 
 	    $response = json_decode((string)$response->getBody());

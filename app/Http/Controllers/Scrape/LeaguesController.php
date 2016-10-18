@@ -23,10 +23,10 @@ class LeaguesController extends ScrapeController
     {
         $leagues = [self::WORLDS_2016_LEAGUE];
 
-        foreach($leagues as $index) {
+        foreach($leagues as $leagueId) {
             
             try {
-                $response = $this->client->request('GET', 'v1/leagues?id=' . $index);
+                $response = $this->client->request('GET', 'v1/leagues?id=' . $leagueId);
             } catch (ClientException $e) {
                 Log::error($e->getMessage()); continue;
             } catch (ServerException $e) {

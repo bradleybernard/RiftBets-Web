@@ -25,12 +25,13 @@ class TimelineController extends ScrapeController
 	    try {
 	    	$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '/timeline?gameHash=' . $gameHash);
 	    } catch (ClientException $e) {
-		    // Log::error($e->getMessage()); continue;
+		    Log::error($e->getMessage()); return;
 	    } catch (ServerException $e) {
-	        // Log::error($e->getMessage()); continue;
+	        Log::error($e->getMessage()); return;
 	    }
 
 	    $response = json_decode((string)$response->getBody());
+        $gameEventCounter = 0;
 
 	    foreach ($response->frames as $frame) 
 	    {
@@ -62,7 +63,8 @@ class TimelineController extends ScrapeController
                     'api_game_id'           => $gameId,
 	    			'game_hash'		        => $gameHash,
             		'type'			        => strtolower($event->type),
-            		'timestamp'		        => $event->timestamp
+            		'timestamp'		        => $event->timestamp,
+                    'unique_id'             => ($gameId . ++$gameEventCounter),
 	    		];
 
 	    		foreach ($event as $eventKey => $eventValue) 
@@ -77,6 +79,7 @@ class TimelineController extends ScrapeController
                     // record to the eventDetails array
                     $records = $this->collectDetails($eventKey, $eventValue);
                     foreach($records as $record) {
+                        $record['event_unique_id'] = ($gameId . $gameEventCounter);
                         $eventDetails[] = $record;
                     }
                 }
@@ -117,7 +120,6 @@ class TimelineController extends ScrapeController
         // Ex: assisting_participant_ids_0, assisting_participant_ids_1 --> assisting_participant_ids (with two rows)
         if($prefix) {
             return [
-                'event_id'  => '1',
                 'key'       => $prefix . (is_numeric($key) ? null : '_' . strtolower(snake_case($key))),
                 'value'     => strtolower($value),
             ];
@@ -125,7 +127,6 @@ class TimelineController extends ScrapeController
             // Since we always want to return a collection of rows we must wrap a single record
             // in a containing array hence [[]]
             return [[
-                'event_id'  => '1',
                 'key'       => strtolower(snake_case($key)),
                 'value'     => strtolower($value),
             ]];
