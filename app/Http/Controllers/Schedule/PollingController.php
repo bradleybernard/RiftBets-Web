@@ -77,12 +77,12 @@ class PollingController extends ScrapeController
                 }
 
                 $this->scrapeGamesDetails($games);
-                $this->scrapeGamesTimeslines($games);
+                $this->scrapeGameTimelines($games);
             }
         }
     }
 
-    protected function scrapeGamesTimeslines($games)
+    protected function scrapeGameTimelines($games)
     {
         $playerStats = [];
         $gameEvents = [];
@@ -134,7 +134,7 @@ class PollingController extends ScrapeController
                         'game_hash'             => $game['game_hash'],
                         'type'                  => strtolower($event->type),
                         'timestamp'             => $event->timestamp,
-                        'unique_id'             => ($game['game_id'] . ++$gameEventCounter)
+                        'unique_id'             => ($game['game_id'] . '_' . ++$gameEventCounter)
                     ];
 
                     foreach ($event as $eventKey => $eventValue) 
@@ -145,17 +145,17 @@ class PollingController extends ScrapeController
 
                         $records = $this->collectDetails($eventKey, $eventValue);
                         foreach($records as $record) {
-                            $record['event_unique_id'] = ($game['game_id'] . $gameEventCounter);
+                            $record['event_unique_id'] = ($game['game_id'] . '_' . $gameEventCounter);
                             $eventDetails[] = $record;
                         }
                     }
                 }
             }
-
-            DB::table('per_frame_player_stats')->insert($playerStats);
-            DB::table('game_events')->insert($gameEvents);
-            DB::table('game_event_details')->insert($eventDetails);
         }
+
+        DB::table('game_frame_player_stats')->insert($playerStats);
+        DB::table('game_events')->insert($gameEvents);
+        DB::table('game_event_details')->insert($eventDetails);
     }
 
     protected function scrapeGamesDetails($games)
@@ -368,16 +368,3 @@ class PollingController extends ScrapeController
         }
     }
 }
-
-/*
-// $select = ['games.'];
-// $games = DB::table('matches')->select($select)
-//             ->join('games', 'games.api_match_id', '=', 'matches.api_id_long')
-//             ->leftJoin('game_mappings', 'games.api_id_long', '=', 'game_mappings.api_game_id')
-//             ->where('matches.state', 'unresolved')
-//             ->whereNotNull('games.game_id')
-//             ->whereNull('game_mappings.api_game_id')
-//             ->get();
-
-// dd($games);
-*/

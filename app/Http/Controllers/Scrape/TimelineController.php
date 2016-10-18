@@ -64,7 +64,7 @@ class TimelineController extends ScrapeController
 	    			'game_hash'		        => $gameHash,
             		'type'			        => strtolower($event->type),
             		'timestamp'		        => $event->timestamp,
-                    'unique_id'             => ($gameId . ++$gameEventCounter),
+                    'unique_id'             => ($gameId . '_' . ++$gameEventCounter),
 	    		];
 
 	    		foreach ($event as $eventKey => $eventValue) 
@@ -79,7 +79,7 @@ class TimelineController extends ScrapeController
                     // record to the eventDetails array
                     $records = $this->collectDetails($eventKey, $eventValue);
                     foreach($records as $record) {
-                        $record['event_unique_id'] = ($gameId . $gameEventCounter);
+                        $record['event_unique_id'] = ($gameId . '_' . $gameEventCounter);
                         $eventDetails[] = $record;
                     }
                 }
