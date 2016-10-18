@@ -108,8 +108,8 @@ class PollingController extends ScrapeController
                 foreach ($frame->participantFrames as $player) 
                 {
                     $playerStats[] = [
-                        'api_game_id_long'      => $gameHash,
-                        'api_game_id'           => $gameId,
+                        'api_game_id_long'      => $game['game_hash'],
+                        'api_game_id'           => $game['game_id'],
                         'api_match_player_id'   => $player->participantId,
                         'x_position'            => $player->position->x,
                         'y_position'            => $player->position->y,
@@ -130,11 +130,11 @@ class PollingController extends ScrapeController
                 foreach ($frame->events as $event) 
                 {
                     $gameEvents[] = [
-                        'api_game_id'           => $gameId,
-                        'game_hash'             => $gameHash,
+                        'api_game_id'           => $game['game_id'],
+                        'game_hash'             => $game['game_hash'],
                         'type'                  => strtolower($event->type),
                         'timestamp'             => $event->timestamp,
-                        'unique_id'             => ($gameId . ++$gameEventCounter)
+                        'unique_id'             => ($game['game_id'] . ++$gameEventCounter)
                     ];
 
                     foreach ($event as $eventKey => $eventValue) 
@@ -145,7 +145,7 @@ class PollingController extends ScrapeController
 
                         $records = $this->collectDetails($eventKey, $eventValue);
                         foreach($records as $record) {
-                            $record['event_unique_id'] = ($gameId . $gameEventCounter);
+                            $record['event_unique_id'] = ($game['game_id'] . $gameEventCounter);
                             $eventDetails[] = $record;
                         }
                     }
@@ -355,7 +355,6 @@ class PollingController extends ScrapeController
         // Ex: assisting_participant_ids_0, assisting_participant_ids_1 --> assisting_participant_ids (with two rows)
         if($prefix) {
             return [
-                'event_id'  => '1',
                 'key'       => $prefix . (is_numeric($key) ? null : '_' . strtolower(snake_case($key))),
                 'value'     => strtolower($value),
             ];
@@ -363,7 +362,6 @@ class PollingController extends ScrapeController
             // Since we always want to return a collection of rows we must wrap a single record
             // in a containing array hence [[]]
             return [[
-                'event_id'  => '1',
                 'key'       => strtolower(snake_case($key)),
                 'value'     => strtolower($value),
             ]];

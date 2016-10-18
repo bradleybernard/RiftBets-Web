@@ -13,7 +13,7 @@ class CreatePerFramePlayerStatsTable extends Migration
      */
     public function up()
     {
-        Schema::create('per_frame_player_stats', function (Blueprint $table) 
+        Schema::create('game_frame_player_stats', function (Blueprint $table) 
         {
             $table->increments('id');
             $table->string('api_game_id_long'); //hashed version
@@ -40,7 +40,7 @@ class CreatePerFramePlayerStatsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('per_frame_player_stats');
+        Schema::dropIfExists('game_frame_player_stats');
 
     }
 }
