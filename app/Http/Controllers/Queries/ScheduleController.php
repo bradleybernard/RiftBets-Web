@@ -1,35 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Queries;
 
 use Illuminate\Http\Request;
-use App\Http\Requests;
 
-use App\User;
-use JWTAuth;
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
 use DB;
 
-class TestController extends Controller
+class ScheduleController extends Controller
 {
-    public function generate(Request $request)
-    {
-        if(!$user = User::where('id', 1)->first()) 
-        {
-            $user = User::create([
-                'facebook_id'   => '1',
-                'name'          => 'travis',
-                'credit'        => 1,
-            ]);
-        }
-
-        $token = JWTAuth::fromUser($user);
-        
-        return $this->response->array([
-            'token' => $token,
-            'user'  => $user,
-        ]);
-    }
-
     public function query()
     {
         $columns = [
@@ -48,8 +28,6 @@ class TestController extends Controller
         });
 
         $rosters = $filtered->pluck('api_resource_id_one')->union($filtered->pluck('api_resource_id_two'))->unique();
-
-        // dd($rosters);
 
         $columns = [
             'rosters.api_id_long', 'teams.name', 'teams.team_photo_url', 'teams.logo_url', 
@@ -78,41 +56,9 @@ class TestController extends Controller
            unset($rows[$key]);
         }
 
-        dd($rows);
-    }
+        // dd($rows);
+        return response()->json([
+        	$rows]);
 
-    public function authenticate(Request $request)
-    {
-    	try 
-    	{
-	    	if (! $user = JWTAuth::parseToken()->authenticate()) 
-	    	{
-	            return response()->json(['user_not_found'], 404);
-	        }
-    	} 
-
-    	catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) 
-    	{
-        	return response()->json(['token_expired'], $e->getStatusCode());
-	    } 
-
-	    catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) 
-	    {
-	        return response()->json(['token_invalid'], $e->getStatusCode());
-	    }
-
-	    catch (Tymon\JWTAuth\Exceptions\JWTException $e) 
-	    {
-	        return response()->json(['token_absent'], $e->getStatusCode());
-	    }
-
-	    // the token is valid and we have found the user via the sub claim
-	    return response()->json(compact('user'));
-    }
-
-    public function test()
-    {
-    	$user = DB::table('leagues')->where('slug', 'worlds')->first();
-    	return $this->response->array((array)$user);
     }
 }
