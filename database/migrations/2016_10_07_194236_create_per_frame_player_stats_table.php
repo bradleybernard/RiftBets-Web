@@ -16,9 +16,8 @@ class CreatePerFramePlayerStatsTable extends Migration
         Schema::create('game_frame_player_stats', function (Blueprint $table) 
         {
             $table->increments('id');
-            $table->string('api_game_id_long'); //hashed version
-            $table->integer('api_game_id');  //int version
-            $table->integer('api_match_player_id');
+            $table->integer('game_id');
+            $table->integer('api_participant_id');
             $table->integer('x_position');
             $table->integer('y_position');
             $table->integer('current_gold');

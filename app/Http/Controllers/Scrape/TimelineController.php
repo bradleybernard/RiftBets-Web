@@ -38,9 +38,8 @@ class TimelineController extends ScrapeController
 	    	foreach ($frame->participantFrames as $player) 
 	    	{
 	    		$playerStats[] = [
-	    			'api_game_id_long'		=> $gameHash,
-	    			'api_game_id'			=> $gameId,
-            		'api_match_player_id'	=> $player->participantId,
+	    			'game_id'			=> $gameId,
+            		'api_participant_id'	=> $player->participantId,
             		'x_position'			=> $player->position->x,
             		'y_position'			=> $player->position->y,
             		'current_gold'			=> $player->currentGold,
@@ -60,8 +59,7 @@ class TimelineController extends ScrapeController
 	    	foreach ($frame->events as $event) 
 	    	{
 	    		$gameEvents[] = [
-                    'api_game_id'           => $gameId,
-	    			'game_hash'		        => $gameHash,
+                    'game_id'           => $gameId,
             		'type'			        => strtolower($event->type),
             		'timestamp'		        => $event->timestamp,
                     'unique_id'             => ($gameId . '_' . ++$gameEventCounter),
