@@ -19,3 +19,4 @@ Route::get('scrape/gamestats', 'Scrape\GameStatsController@scrape');
 Route::get('scrape/schedule', 'Scrape\ScheduleController@scrape');
 Route::get('queries/match', 'Queries\MatchController@query');
 Route::get('poll', 'Schedule\PollingController@poll');
+Route::get('queries/schedule', 'Queries\ScheduleController@query');

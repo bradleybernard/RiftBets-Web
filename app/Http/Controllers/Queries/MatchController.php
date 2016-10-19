@@ -26,10 +26,10 @@ class MatchController extends Controller
 
     	$events = DB::table('game_events')
     		->where('api_game_id', $rows[0]->game_id)
-    		->join('game_event_details', 'game_event_details.event_id', "=", 'game_events.id')
+    		->join('game_event_details', 'game_event_details.event_unique_id', "=", 'game_events.unique_id')
     		->get();
 
-		$matchDetails = DB::table('')
+		// $matchDetails = DB::table('')
 
     	dd($matches);
     }
