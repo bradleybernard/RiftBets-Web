@@ -13,7 +13,7 @@ class CreateAnswersTable extends Migration
      */
     public function up()
     {
-        Schema::create('answers', function (Blueprint $table) {
+        Schema::create('question_answers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('question_id');
             $table->integer('game_id');
@@ -29,6 +29,6 @@ class CreateAnswersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('answers');
+        Schema::dropIfExists('question_answers');
     }
 }

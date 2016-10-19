@@ -8,6 +8,9 @@ use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\ClientException;
 use \GuzzleHttp\Exception\ServerException;
 
+use App\Game;
+use App\Jobs\InsertGameQuestionAnswers;
+
 use DB;
 use \Carbon\Carbon;
 use Log;
@@ -77,8 +80,11 @@ class PollingController extends ScrapeController
                 }
 
                 $this->updateGameAndMatchRows($league, $games);
+
                 $this->scrapeGamesDetails($games);
                 $this->scrapeGameTimelines($games);
+
+                $this->queueGamesAnswers($games);
             }
         }
     }
@@ -156,10 +162,6 @@ class PollingController extends ScrapeController
         $finishedMatches = $matches->filter(function ($item, $key) {
             return $item['state']  == 'resolved';
         });
-
-        Log::info("B Finished matches");
-        Log::info($finishedMatches);
-        Log::info("E Finished matches");
     }
 
     protected function scrapeGameTimelines($games)
@@ -329,6 +331,17 @@ class PollingController extends ScrapeController
         DB::table('game_stats')->insert($gameStats);
         DB::table('game_team_stats')->insert($teamStats);
         DB::table('game_player_stats')->insert($playerStats);
+    }
+
+    protected function queueGamesAnswers($games)
+    {
+        foreach($games as $game) {
+            dispatch(
+                new InsertGameQuestionAnswers(
+                    Game::where('api_id_long', $game['api_game_id'])->first()
+                )
+            );
+        }
     }
 
     private function fillMatch($league, $bracket, $match)

@@ -18,7 +18,8 @@ class CreateUsersTable extends Migration
             $table->string('facebook_id')->unique();
             $table->string('name');
             $table->string('email')->unique()->nullable();
-            $table->integer('credit')->default(0);
+            $table->integer('credits')->default(0);
+            $table->string('device_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
