@@ -19,7 +19,7 @@ class CreateBetsTable extends Migration
             $table->integer('credits_placed');
             $table->integer('credits_won')->default(0);
             $table->boolean('is_complete')->default(false);
-            $table->timestamps()
+            $table->timestamps();
         });
     }
 

@@ -18,7 +18,7 @@ class CreateQuestionsTable extends Migration
             $table->string('slug');
             $table->text('description');
             $table->string('type');
-            $table->decimal('mulitplier', 2, 2);
+            $table->decimal('multiplier', 4, 2);
             $table->string('difficulty');
             $table->timestamp('created_at');
         });
