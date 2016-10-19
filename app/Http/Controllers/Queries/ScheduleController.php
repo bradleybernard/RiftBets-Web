@@ -13,15 +13,19 @@ class ScheduleController extends Controller
     public function query()
     {
         $columns = [
-            'block_prefix', 'block_label', 'sub_block_prefix', 'sub_block_label', 'scheduled_time', 'name',
-            'state', 'api_resource_id_one', 'api_resource_id_two', 'resource_type', 'score_one', 'score_two',
+            'block_prefix', 'block_label', 'sub_block_prefix', 'sub_block_label', 'scheduled_time', 'matches.name',
+            'matches.state', 'api_resource_id_one', 'api_resource_id_two', 'resource_type', 'score_one', 'score_two',
+            'brackets.name as bracket_name'
         ];
 
         $rows = DB::table('schedule')->select($columns)
             ->orderBy('scheduled_time', 'asc')
             ->leftJoin('matches', 'matches.api_id_long', '=', 'schedule.api_match_id')
-            ->where('api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')
+            ->join('brackets', 'brackets.api_id_long', '=', 'matches.api_bracket_id')
+            ->where('schedule.api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')
             ->get();
+
+        $rows = 
 
         $filtered = $rows->filter(function ($value, $key) {
             return $value->resource_type == 'roster';
@@ -49,15 +53,10 @@ class ScheduleController extends Controller
             return $item;
         });
 
+
+
         $rows = $rows->groupBy('scheduled_date');
 
-        // foreach ($rows as $key => $value) {
-        //    $x = date("m/d/Y", strtotime($key));
-        //    $rows[$x] = $rows[$key];
-        //    unset($rows[$key]);
-        // }
-
-        // dd($rows);
         return $this->response->array($rows);
 
     }
