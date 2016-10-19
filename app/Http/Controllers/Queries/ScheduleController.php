@@ -45,16 +45,17 @@ class ScheduleController extends Controller
                 'one' => $teams->get($item->api_resource_id_one),
                 'two' => $teams->get($item->api_resource_id_two),
             ];
+            $item->scheduled_date = date("Y-m-d", strtotime($item->scheduled_time));
             return $item;
         });
 
-        $rows = $rows->keyBy('scheduled_time');
+        $rows = $rows->groupBy('scheduled_date');
 
-        foreach ($rows as $key => $value) {
-           $x = date("m/d/Y", strtotime($key));
-           $rows[$x] = $rows[$key];
-           unset($rows[$key]);
-        }
+        // foreach ($rows as $key => $value) {
+        //    $x = date("m/d/Y", strtotime($key));
+        //    $rows[$x] = $rows[$key];
+        //    unset($rows[$key]);
+        // }
 
         // dd($rows);
         return response()->json([
