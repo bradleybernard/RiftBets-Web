@@ -22,3 +22,4 @@ Route::get('poll', 'Schedule\PollingController@poll');
 Route::get('queries/schedule', 'Queries\ScheduleController@query');
 Route::get('bets/questions', 'Bets\BetController@question');
 Route::get('bets/answers', 'Bets\BetController@answer');
+Route::post('bets/placebet', 'Bets\BetController@placeBet');
