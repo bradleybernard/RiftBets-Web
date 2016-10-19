@@ -30,7 +30,7 @@ class BetController extends Controller
     		[
 			'question_id' 	=> '1', 
 			'game_id'		=> '12',
-			'answer' 		=> 'Travis',
+			'answer' 		=> 'Travis'
 			]
 		]);
     }

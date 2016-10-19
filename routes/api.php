@@ -21,5 +21,5 @@ $api->version('v1', function ($api)
     $api->get('query', 'App\Http\Controllers\TestController@query');
 	// $api->get('test', 'App\Http\Controllers\TestController@test');
     // $api->get('token', 'App\Http\Controllers\TestController@generate');
-
+    $api->get('schedule', 'App\Http\Controllers\Queries\ScheduleController@query');
 });

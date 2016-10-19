@@ -58,8 +58,7 @@ class ScheduleController extends Controller
         // }
 
         // dd($rows);
-        return response()->json([
-        	$rows]);
+        return $this->response->array($rows);
 
     }
 }
