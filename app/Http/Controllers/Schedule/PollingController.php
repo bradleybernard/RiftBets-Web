@@ -76,10 +76,90 @@ class PollingController extends ScrapeController
                     continue;
                 }
 
+                $this->updateGameAndMatchRows($league, $games);
                 $this->scrapeGamesDetails($games);
                 $this->scrapeGameTimelines($games);
             }
         }
+    }
+
+    protected function updateGameAndMatchRows($league, $games)
+    {
+        $games = collect($games);
+        $matches = collect([]);
+
+        $matchIds = $games->pluck('api_match_id')->unique()->toArray();
+        $games = $games->keyBy('api_game_id');
+
+        $gameKeys = ['games', 'remadeGames'];
+
+        foreach($league->highlanderTournaments as $tournament) {
+            foreach($tournament->brackets as $bracket) {
+                foreach($bracket->matches as $match) {
+
+                    if(!in_array($match->id, $matchIds)) {
+                        continue;
+                    }
+
+                    $matches->push($this->fillMatch($league, $bracket, $match));
+
+                    foreach($gameKeys as $gameKey) {
+                        foreach($match->{$gameKey} as $game) {
+                            if($games->has($game->id)) {
+
+                                $games->transform(function ($item, $key) use ($game) {
+
+                                    if($key != $game->id) {
+                                        return $item;
+                                    }
+
+                                    $item['game_id']        = $this->pry($game, 'gameId');
+                                    $item['game_realm']     = $this->pry($game, 'gameRealm');
+                                    $item['platform_id']    = $this->pry($game, 'platformId');
+                                    $item['revision']       = $game->revision;
+
+                                    return $item;
+                                });
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach($games as $game) {
+            DB::table('games')->where('api_id_long', $game['api_game_id'])->update([
+                'game_id'       => $game['game_id'],
+                'game_realm'    => $game['game_realm'],
+                'platform_id'   => $game['platform_id'],
+                'revision'      => $game['revision'],
+            ]);
+        }
+
+        foreach($matches as $match) {
+            DB::table('matches')->where('api_id_long', $match['api_id_long'])->update([
+                'api_bracket_id'            => $match['api_bracket_id'],
+                'name'                      => $match['name'],
+                'position'                  => $match['position'],
+                'state'                     => $match['state'],
+                'group_position'            => $match['group_position'],
+                'scoring_identifier'        => $match['scoring_identifier'],
+                'api_resource_id_one'       => $match['api_resource_id_one'],
+                'api_resource_id_two'       => $match['api_resource_id_two'],
+                'resource_type'             => $match['resource_type'],
+                'score_one'                 => $match['score_one'],
+                'score_two'                 => $match['score_two'],
+            ]);
+        }
+
+        $finishedMatches = $matches->filter(function ($item, $key) {
+            return $item['state']  == 'resolved';
+        });
+
+        Log::info("B Finished matches");
+        Log::info($finishedMatches);
+        Log::info("E Finished matches");
     }
 
     protected function scrapeGameTimelines($games)
@@ -108,9 +188,8 @@ class PollingController extends ScrapeController
                 foreach ($frame->participantFrames as $player) 
                 {
                     $playerStats[] = [
-                        'api_game_id_long'      => $game['game_hash'],
-                        'api_game_id'           => $game['game_id'],
-                        'api_match_player_id'   => $player->participantId,
+                        'game_id'               => $game['game_id'],
+                        'api_participant_id'   => $player->participantId,
                         'x_position'            => $player->position->x,
                         'y_position'            => $player->position->y,
                         'current_gold'          => $player->currentGold,
@@ -130,8 +209,7 @@ class PollingController extends ScrapeController
                 foreach ($frame->events as $event) 
                 {
                     $gameEvents[] = [
-                        'api_game_id'           => $game['game_id'],
-                        'game_hash'             => $game['game_hash'],
+                        'game_id'               => $game['game_id'],
                         'type'                  => strtolower($event->type),
                         'timestamp'             => $event->timestamp,
                         'unique_id'             => ($game['game_id'] . '_' . ++$gameEventCounter)
@@ -251,6 +329,43 @@ class PollingController extends ScrapeController
         DB::table('game_stats')->insert($gameStats);
         DB::table('game_team_stats')->insert($teamStats);
         DB::table('game_player_stats')->insert($playerStats);
+    }
+
+    private function fillMatch($league, $bracket, $match)
+    {
+         $record = [
+            'api_bracket_id'            => $bracket->id,
+            'api_id_long'               => $match->id,
+            'name'                      => $match->name,
+            'position'                  => $match->position,
+            'state'                     => $match->state,
+            'group_position'            => $match->groupPosition,
+            'scoring_identifier'        => $this->pry($match, 'scoring->identifier'),
+            'api_resource_id_one'       => null,
+            'api_resource_id_two'       => null,
+            'resource_type'             => null,
+            'score_one'                 => null,
+            'score_two'                 => null,
+        ];  
+
+        $keys = ['one', 'two'];
+        $index = 0;
+
+        foreach($match->input as $roster) {
+            if(property_exists($roster, 'roster')) {
+                $record['api_resource_id_' . $keys[$index]] = $roster->roster;
+                $record['score_' . $keys[$index++]] = $this->pry($match, 'scores->' . $roster->roster);
+                $record['resource_type'] = 'roster';
+            } else if(property_exists($roster, 'breakpoint')) {
+                $record['api_resource_id_' . $keys[$index++]] = $roster->breakpoint;
+                $record['resource_type'] = 'breakpoint';
+            } else if(property_exists($roster, 'match')) {
+                $record['api_resource_id_' . $keys[$index++]] = $roster->match;
+                $record['resource_type'] = 'match';
+            }
+        }
+
+        return $record;
     }
 
     private function findGameId($league, $gameApiId)

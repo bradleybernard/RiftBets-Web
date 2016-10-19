@@ -16,8 +16,7 @@ class CreateEventsTable extends Migration
         Schema::create('game_events', function (Blueprint $table) 
         {
             $table->increments('id');
-            $table->integer('api_game_id')->unsigned();  //int version
-            $table->string('game_hash'); //hashed version
+            $table->integer('game_id')->unsigned();
             $table->string('type');
             $table->integer('timestamp');
             $table->string('unique_id')->unique();
