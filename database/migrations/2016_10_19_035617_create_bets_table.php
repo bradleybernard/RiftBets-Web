@@ -15,8 +15,8 @@ class CreateBetsTable extends Migration
     {
         Schema::create('bets', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('user_id');
-            $table->integer('credits_placed');
+            $table->integer('user_id')->unsigned();
+            $table->integer('credits_placed')->unsigned();
             $table->integer('credits_won')->default(0);
             $table->boolean('is_complete')->default(false);
             $table->timestamps();

@@ -20,7 +20,7 @@ class CreateBetDetailsTable extends Migration
             $table->integer('question_id');
             $table->integer('answer_id')->nullable();
             $table->string('user_answer');
-            $table->integer('credits_placed');
+            $table->integer('credits_placed')->unsigned();
             $table->integer('credits_won')->default(0);
             $table->boolean('is_complete')->default(false);
             $table->timestamps();
