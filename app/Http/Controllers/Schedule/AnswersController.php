@@ -10,7 +10,7 @@ use Log;
 
 class AnswersController extends Controller
 {
-    protected $questionSlugs;
+    protected $questions;
 
     public      $game;
     protected   $gameStats;
@@ -21,12 +21,12 @@ class AnswersController extends Controller
     {
         $answers = [];
 
-        $this->questionSlugs      = DB::table('questions')->select(['id', 'slug'])->get();
+        $this->questions      = DB::table('questions')->select(['id', 'slug'])->get();
         $this->gameStats          = DB::table('game_stats')->where('game_id', $this->game->game_id)->first();
         $this->gameTeamStats      = DB::table('game_team_stats')->where('game_id', $this->game->game_id)->get();
         $this->gamePlayerStats    = DB::table('game_player_stats')->where('game_id', $this->game->game_id)->get();
 
-        foreach($this->questionSlugs as $question) {
+        foreach($this->questions as $question) {
             $answers[] = [
                 'question_id'   => $question->id,
                 'game_id'       => $this->game->game_id,
