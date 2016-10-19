@@ -35,7 +35,11 @@ class BetController extends Controller
 
 	public function gradeBet()
 	{
-		
+		$bets = DB::table('bets')
+					->where('is_complete', false)
+					->get();
+
+		dd($bets);
 	}
 
     public function question()
@@ -43,10 +47,10 @@ class BetController extends Controller
     	DB::table('questions')->insert([
     		[
 			'slug' 			=> 'test', 
-			'description'	=> 'Who can code the best?',
+			'description'	=> 'Which team will win?',
 			'type' 			=> 'choice',
-			'multiplier' 	=> '3.0',
-			'difficulty'	=> 'pretty easy'
+			'multiplier' 	=> '1.0',
+			'difficulty'	=> 'easy'
 			]
 		]);
     }
@@ -57,7 +61,7 @@ class BetController extends Controller
     		[
 			'question_id' 	=> '1', 
 			'game_id'		=> '12',
-			'answer' 		=> 'Travis'
+			'answer' 		=> 'TSM'
 			]
 		]);
     }
