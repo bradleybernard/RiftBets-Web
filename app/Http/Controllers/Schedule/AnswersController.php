@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Schedule;
 
 use App\Http\Controllers\Controller;
 use App\Game;
+use App\Jobs\InsertGameQuestionAnswers;
 
 use DB;
 use Log;
@@ -17,11 +18,16 @@ class AnswersController extends Controller
     protected   $gameTeamStats;
     protected   $gamePlayerStats;
 
+    public function testJob()
+    {
+        dispatch(new InsertGameQuestionAnswers(Game::where('game_id', '1001890201')->first()));
+    }
+
     public function insertAnswers()
     {
         $answers = [];
 
-        $this->questions      = DB::table('questions')->select(['id', 'slug'])->get();
+        $this->questions          = DB::table('questions')->select(['id', 'slug'])->get();
         $this->gameStats          = DB::table('game_stats')->where('game_id', $this->game->game_id)->first();
         $this->gameTeamStats      = DB::table('game_team_stats')->where('game_id', $this->game->game_id)->get();
         $this->gamePlayerStats    = DB::table('game_player_stats')->where('game_id', $this->game->game_id)->get();

@@ -9,7 +9,7 @@ class QuestionsController extends Controller
 {
     public function insertQuestions()
     {
-        DB::table('questions')->insert($this->getQuestions());
+        DB::table('questions')->insert($this->getQuestions()->toArray());
     }
 
     public function getQuestions()

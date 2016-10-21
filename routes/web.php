@@ -20,6 +20,7 @@ Route::get('scrape/schedule', 'Scrape\ScheduleController@scrape');
 Route::get('queries/match', 'Queries\MatchController@query');
 
 Route::get('poll', 'Schedule\PollingController@poll');
-Route::get('questions', 'Questions\QuestionsController@insertQuestions');
+Route::get('answers', 'Schedule\AnswersController@testJob');
 
+Route::get('questions', 'Questions\QuestionsController@insertQuestions');
 Route::post('bets/placebet', 'Bets\BetController@placeBet');
