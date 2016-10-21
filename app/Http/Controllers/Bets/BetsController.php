@@ -26,4 +26,5 @@ class BetsController extends Controller
 		]);
 		
 	}
+
 }
