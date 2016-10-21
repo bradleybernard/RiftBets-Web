@@ -111,7 +111,6 @@ class DDragonController extends ScrapeController
                 'api_version'   => $this->apiVersion,
                 'api_id'        => $key,
                 'name'          => $entry->name,
-                'plain_text'    => $entry->plaintext,
                 'image_full'    => $entry->image->full,
                 'image_group'   => $entry->image->group,
                 'image_url'     => $this->url($entry->image->group, $entry->image->full),

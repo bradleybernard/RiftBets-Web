@@ -19,6 +19,8 @@ class PollingController extends ScrapeController
 {
     public function poll()
     {
+        Log::info("Poll getting called");
+        
         $select = [
             'schedule.api_tournament_id', 'schedule.api_match_id', 
             'matches.id as match_id', 'schedule.api_league_id'
@@ -28,8 +30,8 @@ class PollingController extends ScrapeController
                     ->join('matches', 'matches.api_id_long', '=', 'schedule.api_match_id')
                     ->where('matches.state', 'unresolved')
                     ->whereNotNull('schedule.api_match_id')
-                    ->where('schedule.scheduled_time', '<=', new Carbon('2016-10-16 22:00:00'))
-                    // ->where('schedule.scheduled_time', '<=', Carbon::now())
+                    // ->where('schedule.scheduled_time', '<=', new Carbon('2016-10-16 22:00:00'))
+                    ->where('schedule.scheduled_time', '<=', Carbon::now())
                     ->get();
 
         if(!$matches) {
@@ -76,8 +78,12 @@ class PollingController extends ScrapeController
                 }
 
                 if(!$games = $this->insertUniqueGameMappings($gameMappings, $gameRealm)) {
+                    Log::info("No new game mappings found");
                     continue;
                 }
+
+                Log::info("New unique game mappings found!");
+                Log::info($games);
 
                 $this->updateGameAndMatchRows($league, $games);
 

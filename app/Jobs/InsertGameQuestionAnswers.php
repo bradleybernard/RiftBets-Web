@@ -11,6 +11,7 @@ use Log;
 use App\Game;
 
 use App\Http\Controllers\Schedule\AnswersController;
+use App\Http\Controllers\Schedule\GradingController;
 
 class InsertGameQuestionAnswers implements ShouldQueue
 {
@@ -28,5 +29,8 @@ class InsertGameQuestionAnswers implements ShouldQueue
         $answersController = new AnswersController();
         $answersController->game = $this->game;
         $answersController->insertAnswers();
+
+        $gradingController = new GradingController();
+        $gradingController->grade(); 
     }
 }

@@ -18,7 +18,6 @@ class CreateDdragonItemsTable extends Migration
             $table->string('api_version');
             $table->integer('api_id');
             $table->string('name');
-            $table->string('plain_text');
             $table->string('image_full');
             $table->string('image_group');
             $table->string('image_url');
