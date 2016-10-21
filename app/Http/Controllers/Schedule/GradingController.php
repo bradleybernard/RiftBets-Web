@@ -14,7 +14,6 @@ class GradingController extends Controller
     {
     	// Things to update:
     	// bet_details.is_complete, bets.is_complete, bet_details.answerId, bets.credits_won, 
-    	// 
     	$bets = DB::table('bets')
     	->where('bets.is_complete', 0)
     	->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
@@ -28,7 +27,7 @@ class GradingController extends Controller
         ->whereNotNull('bet_details.game_id')
     	->update([
     		'bet_details.credits_won'	=> DB::raw('IF(bet_details.user_answer = question_answers.answer, bet_details.credits_placed * questions.multiplier, 0)'),
-    		'bet_details.is_complete'	=> True,
+    		'bet_details.is_complete'	=> true,
     		'bet_details.win'			=> DB::raw('IF(bet_details.user_answer = question_answers.answer, True, False)'),
     		'bet_details.answer_id'		=> DB::raw('question_answers.id'),
     		'bets.bets_graded'			=> DB::raw('IF(bet_details.is_complete = 1 AND bet_details.id = bets.id AND bet_details.is_counted = 0, bets.bets_graded + 1, bets.bets_graded)'),
@@ -41,26 +40,85 @@ class GradingController extends Controller
 
     public function test()
     {
+        $gameId = 'fb741d06-d70c-4e08-b713-af9a1e8a7c62';
+
     	$betId = DB::table('bets')->insertGetId([
             'user_id'           => 1,
-            'credits_placed'    => 500,
+            'credits_placed'    => 10000,
             'bets_count'        => 1,
-            'is_complete'       => False
+            'is_complete'       => false,
         ]);
 
+        // Game duration
         DB::table('bet_details')->insert([
             'bet_id'            => $betId,
-            'api_game_id'       => 'c151d2c2-a8a7-4b4d-b707-557cf9ba4fc7',
-            // 'api_game_id'       => 'fb741d06-d70c-4e08-b713-af9a1e8a7c62',
+            'api_game_id'       => $gameId,
             'question_id'       => 1,
-            'user_answer'       => '2084',
+            'user_answer'       => '2920',
             'credits_placed'    => 500
         ]);
 
-        // DB::table('question_answers')->insert([
-        //     'question_id'       =>  1,
-        //     'game_id'           =>  1001890201,
-        //     'answer'            => '2222'
-        // ]);
+        // team win: ROX
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => $gameId,
+            'question_id'       => 2,
+            'user_answer'       => '100',
+            'credits_placed'    => 500
+        ]);
+
+        // team first blood: rox
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => $gameId,
+            'question_id'       => 3,
+            'user_answer'       => '100',
+            'credits_placed'    => 500
+        ]);
+
+        // team first inhib: rox
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => $gameId,
+            'question_id'       => 4,
+            'user_answer'       => '100',
+            'credits_placed'    => 500
+        ]);
+
+        // team_one_dragon_kills (rox): 3
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => $gameId,
+            'question_id'       => 17,
+            'user_answer'       => '3',
+            'credits_placed'    => 500
+        ]);
+
+        // team_two_dragon_kills (skt): 1
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => $gameId,
+            'question_id'       => 18,
+            'user_answer'       => '1',
+            'credits_placed'    => 500
+        ]);
+
+        // team one ban first champ: ryze
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => $gameId,
+            'question_id'       => 21,
+            'user_answer'       => '13',
+            'credits_placed'    => 500
+        ]);
+
+        // team two ban seocnd champ: sol
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => $gameId,
+            'question_id'       => 24,
+            'user_answer'       => '136',
+            'credits_placed'    => 500
+        ]);
     }
 }

@@ -30,8 +30,8 @@ class PollingController extends ScrapeController
                     ->join('matches', 'matches.api_id_long', '=', 'schedule.api_match_id')
                     ->where('matches.state', 'unresolved')
                     ->whereNotNull('schedule.api_match_id')
-                    ->where('schedule.scheduled_time', '<=', new Carbon('2016-10-16 22:00:00'))
-                    // ->where('schedule.scheduled_time', '<=', Carbon::now())
+                    // ->where('schedule.scheduled_time', '<=', new Carbon('2016-10-16 22:00:00'))
+                    ->where('schedule.scheduled_time', '<=', Carbon::now())
                     ->get();
 
         if(!$matches) {
