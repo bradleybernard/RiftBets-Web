@@ -2,24 +2,23 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Http\Request;
 use Illuminate\Console\Command;
 
-class Scrape extends Command
+class ScrapeDDragon extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'scrape';
+    protected $signature = 'scrape:ddragon {api_version?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Scrapes all riot/match history data for initial setup.';
+    protected $description = 'Scrape DDragon static data: champs, icons, summoners, items from Riot Games API.';
 
     /**
      * Create a new command instance.
@@ -38,10 +37,9 @@ class Scrape extends Command
      */
     public function handle()
     {
-        $controllers = ['Leagues', 'MatchDetails', 'GameStats', 'Timeline', 'Players', 'Schedule'];
+        $ddragon = new \App\Http\Controllers\Scrape\DDragonController();
+        $ddragon->scrape($this->argument('api_version'));
 
-        foreach($controllers as $controller) {
-            app()->make('App\Http\Controllers\Scrape\\' . $controller . 'Controller')->scrape();
-        }
+        $this->info('DDragon scrape completed successfully!');
     }
 }
