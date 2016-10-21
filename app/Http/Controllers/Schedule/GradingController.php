@@ -12,6 +12,9 @@ class GradingController extends Controller
 {
     public function grade()
     {
+    	// Things to update:
+    	// bet_details.is_complete, bets.is_complete, bet_details.answerId, bets.credits_won, 
+    	// 
     	$bets = DB::table('bets')
     	->where('bets.is_complete', 0)
     	->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
@@ -23,7 +26,15 @@ class GradingController extends Controller
     	// ->whereColumn('bet_details.user_answer', 'question_answers.answer')
     	->join('questions', 'questions.id', '=', 'question_answers.question_id')
     	->update([
-    		'bet_details.credits_won' => DB::raw('IF(bet_details.user_answer = question_answers.answer, bet_details.credits_placed * questions.multiplier, 0)'),
+    		'bet_details.credits_won'	=> DB::raw('IF(bet_details.user_answer = question_answers.answer, bet_details.credits_placed * questions.multiplier, 0)'),
+    		'bet_details.is_complete'	=> True,
+    		'bet_details.win'			=> DB::raw('IF(bet_details.user_answer = question_answers.answer, True, False)'),
+    		'bet_details.answer_id'		=> DB::raw('question_answers.id'),
+    		'bets.bets_graded'			=> DB::raw('IF(bet_details.is_complete = 1 AND bet_details.id = bets.id AND bet_details.is_counted = 0, bets.bets_graded + 1, bets.bets_graded)'),
+    		'bet_details.is_counted'	=> DB::raw('IF(bet_details.is_complete = 1, 1, 0)'),
+    		'bets.is_complete'			=> DB::raw('IF(bets.bets_count = bets.bets_graded, 1, 0)'),
+    		'bets.credits_won'			=> DB::raw('IF(bet_details.win = 1 AND bet_details.is_counted = 0, bets.credits_won + bet_details.credits_won, bets.credits_won)')
+    		// 'bets.is_complete'			=> DB::raw('IF()')
     	]);
     }
 
@@ -32,6 +43,7 @@ class GradingController extends Controller
     	$betId = DB::table('bets')->insertGetId([
     		'user_id'			=> 1,
     		'credits_placed'	=> 1200,
+    		'bets_count'		=> 1,
     		'is_complete'		=> False
 		]);
 
