@@ -30,8 +30,8 @@ class PollingController extends ScrapeController
                     ->join('matches', 'matches.api_id_long', '=', 'schedule.api_match_id')
                     ->where('matches.state', 'unresolved')
                     ->whereNotNull('schedule.api_match_id')
-                    // ->where('schedule.scheduled_time', '<=', new Carbon('2016-10-16 22:00:00'))
-                    ->where('schedule.scheduled_time', '<=', Carbon::now())
+                    ->where('schedule.scheduled_time', '<=', new Carbon('2016-10-16 22:00:00'))
+                    // ->where('schedule.scheduled_time', '<=', Carbon::now())
                     ->get();
 
         if(!$matches) {
@@ -445,6 +445,12 @@ class PollingController extends ScrapeController
         $insert = $collection->filter(function ($item, $key) use ($match) {
             return !in_array($item['game_id'], $match);
         });
+
+        foreach($insert as $game) {
+            DB::table('bet_details')->where('api_game_id', $game['api_game_id'])->update([
+                'game_id'   => $game['game_id'],
+            ]);
+        }
 
         DB::table('game_mappings')->insert($insert->toArray());
 

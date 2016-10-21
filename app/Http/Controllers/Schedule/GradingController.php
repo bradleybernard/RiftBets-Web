@@ -25,6 +25,7 @@ class GradingController extends Controller
     	// ->join('question_answers', 'question_answers.game_id', '=', 'bet_details.game_id')
     	// ->whereColumn('bet_details.user_answer', 'question_answers.answer')
     	->join('questions', 'questions.id', '=', 'question_answers.question_id')
+        ->whereNotNull('bet_details.game_id')
     	->update([
     		'bet_details.credits_won'	=> DB::raw('IF(bet_details.user_answer = question_answers.answer, bet_details.credits_placed * questions.multiplier, 0)'),
     		'bet_details.is_complete'	=> True,
@@ -41,24 +42,25 @@ class GradingController extends Controller
     public function test()
     {
     	$betId = DB::table('bets')->insertGetId([
-    		'user_id'			=> 1,
-    		'credits_placed'	=> 1200,
-    		'bets_count'		=> 1,
-    		'is_complete'		=> False
-		]);
+            'user_id'           => 1,
+            'credits_placed'    => 500,
+            'bets_count'        => 1,
+            'is_complete'       => False
+        ]);
 
-		DB::table('bet_details')->insert([
-			'bet_id'			=> $betId,
-			'game_id'			=> 1001890201,
-			'question_id'		=> 1,
-			'user_answer'		=> '2222',
-			'credits_placed'	=> 1200
-		]);
+        DB::table('bet_details')->insert([
+            'bet_id'            => $betId,
+            'api_game_id'       => 'c151d2c2-a8a7-4b4d-b707-557cf9ba4fc7',
+            // 'api_game_id'       => 'fb741d06-d70c-4e08-b713-af9a1e8a7c62',
+            'question_id'       => 1,
+            'user_answer'       => '2084',
+            'credits_placed'    => 500
+        ]);
 
-		DB::table('question_answers')->insert([
-			'question_id'		=>	1,
-			'game_id'			=>	1001890201,
-			'answer'			=> '2222'
-		]);
+        // DB::table('question_answers')->insert([
+        //     'question_id'       =>  1,
+        //     'game_id'           =>  1001890201,
+        //     'answer'            => '2222'
+        // ]);
     }
 }
