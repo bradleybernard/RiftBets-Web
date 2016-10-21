@@ -22,7 +22,9 @@ class CreateBetDetailsTable extends Migration
             $table->string('user_answer');
             $table->integer('credits_placed')->unsigned();
             $table->integer('credits_won')->default(0);
-            $table->boolean('is_complete')->default(false);
+            $table->boolean('is_complete')->default(False);
+            $table->boolean('is_counted')->default(False);
+            $table->boolean('win')->default(False);
             $table->timestamps();
         });
     }
