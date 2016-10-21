@@ -23,4 +23,6 @@ Route::get('poll', 'Schedule\PollingController@poll');
 Route::get('answers', 'Schedule\AnswersController@testJob');
 
 Route::get('questions', 'Questions\QuestionsController@insertQuestions');
-Route::post('bets/placebet', 'Bets\BetController@placeBet');
+Route::post('bets/placebet', 'Bets\BetsController@placeBet');
+Route::get('test', 'Schedule\GradingController@test');
+Route::get('grade', 'Schedule\GradingController@grade');
