@@ -9,6 +9,7 @@ class QuestionsController extends Controller
 {
     public function insertQuestions()
     {
+        DB::table('questions')->truncate();
         DB::table('questions')->insert($this->getQuestions()->toArray());
     }
 
@@ -64,42 +65,42 @@ class QuestionsController extends Controller
             [
                 'slug'          => 'team_one_first_baron', 
                 'description'   => 'Will team one get first baron?',
-                'type'          => 'team',
+                'type'          => 'boolean',
                 'multiplier'    => 1.0,
                 'difficulty'    => 'easy'
             ],
             [
                 'slug'          => 'team_two_first_baron', 
                 'description'   => 'Will team two get first baron?',
-                'type'          => 'team',
+                'type'          => 'boolean',
                 'multiplier'    => 1.0,
                 'difficulty'    => 'easy'
             ],
             [
                 'slug'          => 'team_one_first_dragon', 
                 'description'   => 'Will team one get first dragon?',
-                'type'          => 'team',
+                'type'          => 'boolean',
                 'multiplier'    => 1.0,
                 'difficulty'    => 'easy'
             ],
             [
                 'slug'          => 'team_two_first_dragon', 
                 'description'   => 'Will team two get first dragon?',
-                'type'          => 'team',
+                'type'          => 'boolean',
                 'multiplier'    => 1.0,
                 'difficulty'    => 'easy'
             ],
             [
                 'slug'          => 'team_one_first_rift_herald', 
                 'description'   => 'Will team one get first rift herald?',
-                'type'          => 'team',
+                'type'          => 'boolean',
                 'multiplier'    => 1.0,
                 'difficulty'    => 'easy'
             ],
             [
                 'slug'          => 'team_two_first_rift_herald', 
                 'description'   => 'Will team two get first rift herald?',
-                'type'          => 'team',
+                'type'          => 'boolean',
                 'multiplier'    => 1.0,
                 'difficulty'    => 'easy'
             ],
