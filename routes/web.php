@@ -17,12 +17,10 @@ Route::get('scrape/timeline', 'Scrape\TimelineController@scrape');
 Route::get('scrape/matchdetails', 'Scrape\MatchDetailsController@scrape');
 Route::get('scrape/gamestats', 'Scrape\GameStatsController@scrape');
 Route::get('scrape/schedule', 'Scrape\ScheduleController@scrape');
-Route::get('queries/match', 'Queries\MatchController@query');
 
 Route::get('poll', 'Schedule\PollingController@poll');
 Route::get('answers', 'Schedule\AnswersController@testJob');
+Route::get('bets', 'Schedule\GradingController@bets');
+Route::get('grade', 'Schedule\GradingController@grade');
 
 Route::get('questions', 'Questions\QuestionsController@insertQuestions');
-Route::post('bets/placebet', 'Bets\BetsController@placeBet');
-Route::get('test', 'Schedule\GradingController@test');
-Route::get('grade', 'Schedule\GradingController@grade');

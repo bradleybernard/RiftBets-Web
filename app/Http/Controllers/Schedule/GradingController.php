@@ -42,9 +42,12 @@ class GradingController extends Controller
     {
         // game 1: rox vs skt
         // $gameId = 'fb741d06-d70c-4e08-b713-af9a1e8a7c62';
-
         // game 2: rox vs skt
         // $gameId = '3b124078-c557-4e55-a793-00cbd1b9dc0c';
+
+        // Test data values
+        $gameIdLong = 'eddd9430-f53c-4227-8b5f-bf4fb7b39f05';
+        $gameId = '1001890201'; //gets filled in later but this is testing
 
         $bets = [
             // Game duration: 2920/60 = 48 mins
@@ -105,7 +108,8 @@ class GradingController extends Controller
 
         foreach($bets as &$bet) {
             $bet['bet_id']            = $betId;
-            $bet['api_game_id']       = $gameId;
+            $bet['api_game_id']       = $gameIdLong;
+            $bet['game_id']           = $gameId;
         }
 
         DB::table('bet_details')->insert($bets);
