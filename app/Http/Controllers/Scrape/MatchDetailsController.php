@@ -32,7 +32,7 @@ class MatchDetailsController extends ScrapeController
             $gameMappings[] = [
                 'api_match_id'  => $matchId,
                 'api_game_id'   => $mapping->id,
-                'game_id'       => 123456789,
+                'game_id'       => DB::table('games')->where('api_id_long', $mapping->id)->pluck('game_id')[0],
                 'game_hash'     => $mapping->gameHash
             ];
         }

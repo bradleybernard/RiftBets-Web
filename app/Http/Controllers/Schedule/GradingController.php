@@ -40,85 +40,74 @@ class GradingController extends Controller
 
     public function test()
     {
-        $gameId = 'fb741d06-d70c-4e08-b713-af9a1e8a7c62';
+        // game 1: rox vs skt
+        // $gameId = 'fb741d06-d70c-4e08-b713-af9a1e8a7c62';
+
+        // game 2: rox vs skt
+        // $gameId = '3b124078-c557-4e55-a793-00cbd1b9dc0c';
+
+        $bets = [
+            // Game duration: 2920/60 = 48 mins
+            [
+                'question_id'       => 1,
+                'user_answer'       => '2920',
+                'credits_placed'    => 500
+            ],
+            // team win: ROX
+            [
+                'question_id'       => 2,
+                'user_answer'       => '100',
+                'credits_placed'    => 500
+            ],
+            // team first blood: rox
+            [
+                'question_id'       => 3,
+                'user_answer'       => '100',
+                'credits_placed'    => 500
+            ],
+            // team first inhib: rox
+            [
+                'question_id'       => 4,
+                'user_answer'       => '100',
+                'credits_placed'    => 500
+            ],
+            // team_one_dragon_kills (rox): 3
+            [
+                'question_id'       => 17,
+                'user_answer'       => '3',
+                'credits_placed'    => 500
+            ],
+            // team_two_dragon_kills (skt): 1
+            [
+                'question_id'       => 18,
+                'user_answer'       => '1',
+                'credits_placed'    => 500
+            ],
+            // team one ban first champ: ryze
+            [
+                'question_id'       => 21,
+                'user_answer'       => '13',
+                'credits_placed'    => 500
+            ],
+            // team two ban seocnd champ: sol
+            [
+                'question_id'       => 24,
+                'user_answer'       => '136',
+                'credits_placed'    => 500
+            ]
+        ];
 
     	$betId = DB::table('bets')->insertGetId([
             'user_id'           => 1,
             'credits_placed'    => 10000,
-            'bets_count'        => 1,
-            'is_complete'       => false,
+            'bets_count'        => count($bets),
         ]);
 
-        // Game duration
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 1,
-            'user_answer'       => '2920',
-            'credits_placed'    => 500
-        ]);
+        foreach($bets as &$bet) {
+            $bet['bet_id']            = $betId;
+            $bet['api_game_id']       = $gameId;
+        }
 
-        // team win: ROX
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 2,
-            'user_answer'       => '100',
-            'credits_placed'    => 500
-        ]);
-
-        // team first blood: rox
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 3,
-            'user_answer'       => '100',
-            'credits_placed'    => 500
-        ]);
-
-        // team first inhib: rox
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 4,
-            'user_answer'       => '100',
-            'credits_placed'    => 500
-        ]);
-
-        // team_one_dragon_kills (rox): 3
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 17,
-            'user_answer'       => '3',
-            'credits_placed'    => 500
-        ]);
-
-        // team_two_dragon_kills (skt): 1
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 18,
-            'user_answer'       => '1',
-            'credits_placed'    => 500
-        ]);
-
-        // team one ban first champ: ryze
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 21,
-            'user_answer'       => '13',
-            'credits_placed'    => 500
-        ]);
-
-        // team two ban seocnd champ: sol
-        DB::table('bet_details')->insert([
-            'bet_id'            => $betId,
-            'api_game_id'       => $gameId,
-            'question_id'       => 24,
-            'user_answer'       => '136',
-            'credits_placed'    => 500
-        ]);
+        DB::table('bet_details')->insert($bets);
     }
 }

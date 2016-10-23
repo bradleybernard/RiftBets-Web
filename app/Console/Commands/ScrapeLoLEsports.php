@@ -43,6 +43,14 @@ class ScrapeLoLEsports extends Command
         foreach($controllers as $controller) {
             app()->make('App\Http\Controllers\Scrape\\' . $controller . 'Controller')->scrape();
         }
+        
+        $this->info('Inserted raw data from Riot Games API');
+
+        app()->make('App\Http\Controllers\Questions\QuestionsController')->insertQuestions();
+        $this->info('Inserted questions data');
+
+        app()->make('App\Http\Controllers\Schedule\AnswersController')->testJob();
+        $this->info('Inserted answers from questions/gamestats table');
 
         $this->info('LoLEsports scrape completed successfully!');
     }
