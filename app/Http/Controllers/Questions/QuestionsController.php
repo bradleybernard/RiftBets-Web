@@ -216,7 +216,20 @@ class QuestionsController extends Controller
                 'multiplier'    => 2.0,
                 'difficulty'    => 'hard'
             ],
-
+            [
+                'slug'          => 'team_one_champion_bans', 
+                'description'   => 'Which champions will team one ban?',
+                'type'          => 'champion',
+                'multiplier'    => 10.0,
+                'difficulty'    => 'hard'
+            ],
+            [
+                'slug'          => 'team_two_champion_bans', 
+                'description'   => 'Which champions will team two ban?',
+                'type'          => 'champion',
+                'multiplier'    => 10.0,
+                'difficulty'    => 'hard'
+            ]
         ];
     }
 
@@ -642,7 +655,175 @@ class QuestionsController extends Controller
                 'type'          => 'integer',
                 'multiplier'    => 50.00,
                 'difficulty'    => 'extra hard',
-            ]       
+            ],
+            [
+                'slug'          => 'team_one_player_top_items',
+                'description'   => 'What items will team one Top buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_top_items',
+                'description'   => 'What items will team two Top buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_jungle_items',
+                'description'   => 'What items will team one Jungle buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_jungle_items',
+                'description'   => 'What items will team two Jungler buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_mid_items',
+                'description'   => 'What items will team one Mid buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_mid_items',
+                'description'   => 'What items will team two Mid buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_adc_items',
+                'description'   => 'What items will team one AD Carry buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_adc_items',
+                'description'   => 'What items will team two AD Carry buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_support_items',
+                'description'   => 'What items will team one Support buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_support_items',
+                'description'   => 'What items will team two Support buy?',
+                'type'          => 'list',
+                'multiplier'    => 5.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_champions',
+                'description'   => 'What champions will team one select?',
+                'type'          => 'list',
+                'multiplier'    => 10.00,
+                'difficulty'    => 'hard',
+            ],
+            [
+                'slug'          => 'team_two_champions',
+                'description'   => 'What champions will team two select?',
+                'type'          => 'list',
+                'multiplier'    => 10.00,
+                'difficulty'    => 'hard',
+            ],
+            [
+                'slug'          => 'team_one_player_top_spells',
+                'description'   => 'What summoner spells will team one Top use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_jungle_spells',
+                'description'   => 'What summoner spells will team one Jungler use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_mid_spells',
+                'description'   => 'What summoner spells will team one Mid use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_adc_spells',
+                'description'   => 'What summoner spells will team one AD Carry use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_player_support_spells',
+                'description'   => 'What summoner spells will team one Support use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_top_spells',
+                'description'   => 'What summoner spells will team two Top use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_jungle_spells',
+                'description'   => 'What summoner spells will team two Jungler use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_mid_spells',
+                'description'   => 'What summoner spells will team two Mid use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_adc_spells',
+                'description'   => 'What summoner spells will team two AD Carry use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_two_player_support_spells',
+                'description'   => 'What summoner spells will team two Support use?',
+                'type'          => 'list',
+                'multiplier'    => 3.00,
+                'difficulty'    => 'medium',
+            ],
+            [
+                'slug'          => 'team_one_total_gold',
+                'description'   => 'How much total gold will team one have?',
+                'type'          => 'list',
+                'multiplier'    => 50.00,
+                'difficulty'    => 'extra_hard',
+            ],
+            [
+                'slug'          => 'team_two_total_gold',
+                'description'   => 'How much total gold will team two have?',
+                'type'          => 'list',
+                'multiplier'    => 50.00,
+                'difficulty'    => 'extra_hard',
+            ],
         ];
     }
 }   

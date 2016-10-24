@@ -40,9 +40,97 @@ class AnswersController extends Controller
             ];
         }
         
+
         DB::table('question_answers')->insert($answers);
     }
 
+    /********** Helper functions *******************/
+
+    private function itemArrayToString($playerId)
+    {
+        $items = [];
+
+        for ($i = 1; $i <= 6; $i++)
+        {
+            array_push($items, $this->gamePlayerStats->where('participant_id', $playerId)->pluck('item_' .$i)->first());
+        }
+
+        $items = array_filter($items, function($item){return !is_null($item);});
+
+        asort($items);
+        $items = implode(",", $items);
+
+        return $items;
+    }
+
+    private function teamChampionsToString($teamId)
+    {
+        $offset = 0;
+
+        if ($teamId == 200)
+        {
+            $offset += 5;
+        }
+
+        $champions = [];
+
+        for($i = 1 + $offset; $i <= 5 + $offset; $i++)
+        {
+            array_push($champions, $this->gamePlayerStats->where('participant_id', $i)->pluck('champion_id')->first());
+        }
+
+        asort($champions);
+        $champions = implode(",", $champions);
+
+        return $champions;
+    }
+
+    private function playerSpells($playerId)
+    {
+        $spells = [];
+
+        array_push($spells, $this->gamePlayerStats->where('participant_id', $playerId)->pluck('spell1_id')->first());
+        array_push($spells, $this->gamePlayerStats->where('participant_id', $playerId)->pluck('spell2_id')->first());
+
+        asort($spells);
+        $spells = implode(",", $spells);
+
+        return $spells;
+    }
+
+    private function teamBans($teamId)
+    {
+        $bans = [];
+
+        for ($i = 1; $i <= 3; $i++)
+        {
+            array_push($bans, $this->gameTeamStats->where('team_id', $teamId)->pluck('ban_' .$i)->first());
+        }
+
+        asort($bans);
+        $bans = implode(',', $bans);
+
+        return $bans;
+    }
+
+    private function teamGold($teamId)
+    {
+        $offset = 0;
+
+        if ($teamId == 200)
+        {
+            $offset += 5;
+        }
+
+        $totalGold = 0;
+
+        for($i = 1 + $offset; $i <= 5 + $offset; $i++)
+        {
+            $totalGold += $this->gamePlayerStats->where('participant_id', $i)->pluck('gold_earned')->first();
+        }
+
+        return $totalGold;
+    }
 
     /********** Game Stats *************************/
 
@@ -177,6 +265,16 @@ class AnswersController extends Controller
     private function teamTwoBanThirdChampion()
     {
         return $this->gameTeamStats->where('team_id', 200)->pluck('ban_3')->first();
+    }
+
+    private function teamOneChampionBans()
+    {
+        return $this->teamBans(100);
+    }
+
+    private function teamTwoChampionBans()
+    {
+        return $this->teamBans(200);
     }
 
     /********* Game Player Stats *******************/
@@ -479,5 +577,125 @@ class AnswersController extends Controller
     private function teamTwoPlayerSupportMinionKills()
     {
         return $this->gamePlayerStats->where('participant_id', 10)->pluck('minions_killed')->first();
+    }
+
+    private function teamOnePlayerTopItems()
+    {
+        return $this->itemArrayToString(1);
+    }
+
+    private function teamOnePlayerJungleItems()
+    {
+        return $this->itemArrayToString(2);
+    }
+
+    private function teamOnePlayerMidItems()
+    {
+        return $this->itemArrayToString(3);
+    }
+
+    private function teamOnePlayerAdcItems()
+    {
+        return $this->itemArrayToString(4);
+    }
+
+    private function teamOnePlayerSupportItems()
+    {
+        return $this->itemArrayToString(5);
+    }
+
+    private function teamTwoPlayerTopItems()
+    {
+        return $this->itemArrayToString(6);
+    }
+
+    private function teamTwoPlayerJungleItems()
+    {
+        return $this->itemArrayToString(7);
+    }
+
+    private function teamTwoPlayerMidItems()
+    {
+        return $this->itemArrayToString(8);
+    }
+
+    private function teamTwoPlayerAdcItems()
+    {
+        return $this->itemArrayToString(9);
+    }
+
+    private function teamTwoPlayerSupportItems()
+    {
+        return $this->itemArrayToString(10);
+    }
+
+    private function teamOneChampions()
+    {
+        return $this->teamChampionsToString(100);
+    }
+
+    private function teamTwoChampions()
+    {
+        return $this->teamChampionsToString(200);
+    }
+
+    private function teamOnePlayerTopSpells()
+    {
+        return $this->playerSpells(1);
+    }
+
+    private function teamOnePlayerJungleSpells()
+    {
+        return $this->playerSpells(2);
+    }
+
+    private function teamOnePlayerMidSpells()
+    {
+        return $this->playerSpells(3);
+    }
+
+    private function teamOnePlayerAdcSpells()
+    {
+        return $this->playerSpells(4);
+    }
+
+    private function teamOnePlayerSupportSpells()
+    {
+        return $this->playerSpells(5);
+    }
+
+    private function teamTwoPlayerTopSpells()
+    {
+        return $this->playerSpells(6);
+    }
+
+    private function teamTwoPlayerJungleSpells()
+    {
+        return $this->playerSpells(7);
+    }
+
+    private function teamTwoPlayerMidSpells()
+    {
+        return $this->playerSpells(8);
+    }
+
+    private function teamTwoPlayerAdcSpells()
+    {
+        return $this->playerSpells(9);
+    }
+
+    private function teamTwoPlayerSupportSpells()
+    {
+        return $this->playerSpells(10);
+    }
+
+    private function teamOneTotalGold()
+    {
+        return $this->teamGold(100);
+    }
+
+    private function teamTwoTotalGold()
+    {
+        return $this->teamGold(200);
     }
 }
