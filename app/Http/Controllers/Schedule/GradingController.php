@@ -38,13 +38,16 @@ class GradingController extends Controller
 		// ->join()
 		]);
 
-		DB::table('bets')
-		->select(['bet_details.bet_id', 'bets.*', 'sum(bet_details.credits_won) as credits_sum'])
-		->join('bet_details', 'bet_details.bet_id', '=','bets.id')
+		$bets = DB::table('bets')
+		->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
+		->select(['bet_details.bet_id', 'bets.*', DB::raw('SUM(bet_details.credits_won) AS credits_sum')])
 		->groupBy('bet_details.bet_id')
 		->update([
-			'bets.credits_won'			=> DB::raw('credits_sum')
+			'bets.credits_won'			=> DB::raw('bet_details.credits_sum')
 		]);
+		// ->get();
+
+		dd($bets);
 	}
 
 	public function bets()
