@@ -16,16 +16,13 @@ class CreateBetDetailsTable extends Migration
         Schema::create('bet_details', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('bet_id');
-            $table->string('api_game_id');
-            $table->integer('game_id')->nullable();
             $table->integer('question_id');
             $table->integer('answer_id')->nullable();
             $table->string('user_answer');
             $table->integer('credits_placed')->unsigned();
             $table->integer('credits_won')->default(0);
             $table->boolean('is_complete')->default(false);
-            $table->boolean('is_counted')->default(false);
-            $table->boolean('win')->default(false);
+            $table->boolean('won')->default(false);
             $table->timestamps();
         });
     }

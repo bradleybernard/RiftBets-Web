@@ -30,7 +30,7 @@ class FacebookController extends Controller
                 'facebook_id' => $userNode->getId(),
                 'name'        => $userNode->getName(),
                 'email'       => $userNode->getEmail(),
-                'credit'      => 0
+                'credits'      => 0
             ]);
         }
 
