@@ -40,25 +40,8 @@ class ScheduleController extends Controller
 
         foreach ($gameTeamStats as $matchKey => $gameTeamStat)
         {
-            $score1 = 0;
-            $score2 = 0;
-
-            foreach($gameTeamStat as $gameStat)
-            {
-                if($gameStat->team_id == 100)
-                {
-                    if($gameStat->win == 1)
-                    {
-                        $score1 += 1;
-                    }
-                } else {
-
-                    if($gameStat->win == 1)
-                    {
-                        $score2 += 1;
-                    }
-                }
-            }
+            $score1 = $gameTeamStat->where('team_id', 100)->sum('win');
+            $score2 = $gameTeamStat->where('team_id', 200)->sum('win');
 
             $rows->transform(function ($item, $key) use($matchKey, $score1, $score2){
                 if($item->api_id_long == $matchKey)
@@ -69,6 +52,8 @@ class ScheduleController extends Controller
                 return $item;
             });
         }
+
+        dd($rows);
 
         $filtered = $rows->filter(function ($value, $key) {
             return $value->resource_type == 'roster';
