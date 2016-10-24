@@ -16,7 +16,7 @@ class ScheduleController extends Controller
             'block_prefix', 'block_label', 'sub_block_prefix', 'sub_block_label', 'scheduled_time', 'matches.name',
             'matches.state', 'api_resource_id_one', 'api_resource_id_two', 'resource_type', 'score_one', 'score_two',
             'brackets.name as bracket_name', 'brackets.bracket_identifier', 'brackets.bracket_rounds',
-            'brackets.match_identifier', 'brackets.match_best_of'
+            'brackets.match_identifier', 'brackets.match_best_of', 'matches.api_id_long'
         ];
 
         $rows = DB::table('schedule')->select($columns)
@@ -25,6 +25,50 @@ class ScheduleController extends Controller
             ->join('brackets', 'brackets.api_id_long', '=', 'matches.api_bracket_id')
             ->where('schedule.api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')
             ->get();
+
+        $bestof = $rows->filter(function ($value, $key) {
+            return $value->score_one === null && $value->match_best_of == 5; 
+        });
+
+        $bestmatches = $bestof->pluck('api_id_long');
+
+        $gameTeamStats = DB::table('games')
+                ->whereIn('games.api_match_id', $bestmatches->all())
+                ->join('game_team_stats', 'game_team_stats.game_id', '=', 'games.game_id')
+                ->get()
+                ->groupBy('api_match_id');
+
+        foreach ($gameTeamStats as $matchKey => $gameTeamStat)
+        {
+            $score1 = 0;
+            $score2 = 0;
+
+            foreach($gameTeamStat as $gameStat)
+            {
+                if($gameStat->team_id == 100)
+                {
+                    if($gameStat->win == 1)
+                    {
+                        $score1 += 1;
+                    }
+                } else {
+
+                    if($gameStat->win == 1)
+                    {
+                        $score2 += 1;
+                    }
+                }
+            }
+
+            $rows->transform(function ($item, $key) use($matchKey, $score1, $score2){
+                if($item->api_id_long == $matchKey)
+                {
+                    $item->score_one = $score1;
+                    $item->score_two = $score2;
+                }
+                return $item;
+            });
+        }
 
         $filtered = $rows->filter(function ($value, $key) {
             return $value->resource_type == 'roster';
