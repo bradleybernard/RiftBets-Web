@@ -15,7 +15,8 @@ class ScheduleController extends Controller
         $columns = [
             'block_prefix', 'block_label', 'sub_block_prefix', 'sub_block_label', 'scheduled_time', 'matches.name',
             'matches.state', 'api_resource_id_one', 'api_resource_id_two', 'resource_type', 'score_one', 'score_two',
-            'brackets.name as bracket_name'
+            'brackets.name as bracket_name', 'brackets.bracket_identifier', 'brackets.bracket_rounds',
+            'brackets.match_identifier', 'brackets.match_best_of'
         ];
 
         $rows = DB::table('schedule')->select($columns)
@@ -24,8 +25,6 @@ class ScheduleController extends Controller
             ->join('brackets', 'brackets.api_id_long', '=', 'matches.api_bracket_id')
             ->where('schedule.api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')
             ->get();
-
-        $rows = 
 
         $filtered = $rows->filter(function ($value, $key) {
             return $value->resource_type == 'roster';
