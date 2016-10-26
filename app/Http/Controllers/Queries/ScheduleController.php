@@ -53,8 +53,6 @@ class ScheduleController extends Controller
             });
         }
 
-        dd($rows);
-
         $filtered = $rows->filter(function ($value, $key) {
             return $value->resource_type == 'roster';
         });
