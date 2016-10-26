@@ -12,42 +12,32 @@ class GradingController extends Controller
 {
 	public function grade()
 	{
-		// Things to update:
-		// bet_details.is_complete, bets.is_complete, bet_details.answerId, bets.credits_won, 
-		DB::table('bets')
-		->where('bets.is_complete', 0)
-		->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
-		->join('question_answers', function($join){
-			$join->on('bet_details.question_id', '=', 'question_answers.question_id')
-				->whereColumn('question_answers.game_id', '=','bets.game_id');
-		})
-		->join('questions', 'questions.id', '=', 'question_answers.question_id')
-		->whereNotNull('bets.game_id')
-		->update([
-			'bet_details.credits_won'	=> DB::raw('IF(bet_details.user_answer = question_answers.answer, bet_details.credits_placed * questions.multiplier, 0)'),
-			'bet_details.is_complete'	=> true,
-			'bet_details.won'			=> DB::raw('IF(bet_details.user_answer = question_answers.answer, True, False)'),
-			'bet_details.answer_id'		=> DB::raw('question_answers.id'),
-			// 'bets.is_complete'			=> DB::raw('IF(bets.bets_count = bets.bets_graded, 1, 0)'),
-// 			'bets.credits_won'			=> DB::raw('SUM(bet_details.credits_won) AS credits_won 
-// FROM bet_details INNER JOIN bets ON bet_details.bet_id=bets.id 
-// GROUP BY bet_details.bet_id'),
-			// 'bets.is_complete'			=> DB::raw('IF()')
-
 		// DB::table('bets')
-		// ->join()
-		]);
+		// ->where('bets.is_complete', 0)
+		// ->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
+		// ->join('question_answers', function($join){
+		// 	$join->on('bet_details.question_id', '=', 'question_answers.question_id')
+		// 		->whereColumn('question_answers.game_id', '=','bets.game_id');
+		// })
+		// ->join('questions', 'questions.id', '=', 'question_answers.question_id')
+		// ->whereNotNull('bets.game_id')
+		// ->update([
+		// 	'bet_details.credits_won'	=> DB::raw('IF(bet_details.user_answer = question_answers.answer, bet_details.credits_placed * questions.multiplier, 0)'),
+		// 	'bet_details.is_complete'	=> true,
+		// 	'bet_details.won'			=> DB::raw('IF(bet_details.user_answer = question_answers.answer, 1, 0)'),
+		// 	'bet_details.answer_id'		=> DB::raw('question_answers.id'),
+		// ]);
 
-		$bets = DB::table('bets')
-		->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
-		->select(['bet_details.bet_id', 'bets.*', DB::raw('SUM(bet_details.credits_won) AS credits_sum')])
-		->groupBy('bet_details.bet_id')
-		->update([
-			'bets.credits_won'			=> DB::raw('bet_details.credits_sum')
-		]);
+		// $bets = DB::table('bets')
+		// ->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
+		// ->select(['bet_details.bet_id', 'bets.*', DB::raw('SUM(bet_details.credits_won) AS credits_sum')])
+		// ->groupBy('bet_details.bet_id')
+		// ->update([
+		// 	'bets.credits_won'			=> DB::raw('bet_details.credits_sum')
+		// ]);
 		// ->get();
 
-		dd($bets);
+		// dd($bets);
 	}
 
 	public function bets()
