@@ -28,16 +28,15 @@ class GradingController extends Controller
 			'bet_details.answer_id'		=> DB::raw('question_answers.id'),
 		]);
 
-        DB::update('
-            UPDATE bets 
-            INNER JOIN bet_details ON bet_details.bet_id = bets.id
-            SET bets.credits_won = (
-                SELECT SUM(bet_details.credits_won) 
-                FROM bet_details 
-                WHERE bet_id = bets.id
-            )
-            WHERE bets.is_complete = 0 
-            AND bet_details.is_complete = 1');
+		DB::update('UPDATE bets 
+			INNER JOIN bet_details ON bet_details.bet_id = bets.id
+			INNER JOIN users ON users.id = bets.user_id
+			SET users.credits = users.credits+bets.credits_won,
+				bets.is_complete = 1,
+				bets.credits_won = (SELECT SUM(bet_details.credits_won)
+			FROM bet_details WHERE bet_id = bets.id)
+			WHERE bets.is_complete = 0 
+			AND bet_details.is_complete = 1');
 	}
 
 	public function bets()
@@ -55,7 +54,7 @@ class GradingController extends Controller
 			// Game duration: 2920/60 = 48 mins
 			[
 				'question_id'       => 1,
-				'user_answer'       => '2920',
+				'user_answer'       => '2222',
 				'credits_placed'    => 500
 			],
 			// team win: ROX
