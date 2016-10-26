@@ -30,14 +30,13 @@ class GradingController extends Controller
 
 		DB::update('UPDATE bets 
 			INNER JOIN bet_details ON bet_details.bet_id = bets.id
-			SET bets.is_complete = 1,
+			INNER JOIN users ON users.id = bets.user_id
+			SET users.credits = users.credits+bets.credits_won,
+				bets.is_complete = 1,
 				bets.credits_won = (SELECT SUM(bet_details.credits_won)
 			FROM bet_details WHERE bet_id = bets.id)
 			WHERE bets.is_complete = 0 
 			AND bet_details.is_complete = 1');
-
-
-		// dd($bets);
 	}
 
 	public function bets()
