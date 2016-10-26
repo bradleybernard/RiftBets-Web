@@ -19,7 +19,7 @@ $api->version('v1', function ($api)
     $api->post('auth/facebook', 'App\Http\Controllers\Facebook\FacebookController@facebook');
     $api->get('schedule', 'App\Http\Controllers\Queries\ScheduleController@query');
 
-    // $api->get('query', 'App\Http\Controllers\TestController@query');
-    // $api->get('test', 'App\Http\Controllers\Test\TestController@test');
-    // $api->get('token', 'App\Http\Controllers\Test\TestController@generate');
+    $api->group(['middleware' => 'api.auth'], function ($api) {
+        $api->post('bets/create', 'App\Http\Controllers\Bets\BetsController@bet');
+    });
 });
