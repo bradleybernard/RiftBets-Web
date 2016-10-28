@@ -82,6 +82,27 @@ class MatchDetailsController extends Controller
                         ->get()
                         ->groupBy('game_id');
 
+        foreach ($teamOnePlayers as $game)
+        {
+            foreach ($game as $player) 
+            {   
+                unset($player->id);
+                unset($player->game_id);
+                unset($player->profile_icon);
+            }
+        }
+
+        foreach ($teamTwoPlayers as $game)
+        {
+            foreach ($game as $player) 
+            {   
+                unset($player->id);
+                unset($player->game_id);
+                unset($player->profile_icon);
+            }
+        }
+
+
         $team1->transform(function ($item, $key) use ($teamOnePlayers)
         {
             $item->player_stats = $teamOnePlayers[$item->game_id]->keyBy('participant_id')->all();
@@ -95,38 +116,94 @@ class MatchDetailsController extends Controller
         });
 
         $rows->transform(function ($item, $key) use ($team1, $team2) {
+            $game_name = $team1->get('G1')->game_name;
+            $game_id = $team1->get('G1')->game_id;
+            $generated_name = $team1->get('G1')->generated_name;
+
+            unset($team1['G1']->game_name);
+            unset($team1['G1']->game_id);
+            unset($team1['G1']->generated_name);
+            unset($team2['G1']->game_name);
+            unset($team2['G1']->game_id);
+            unset($team2['G1']->generated_name);
+
             $item->game_one = [
-                'team_one' => $team1->get('G1'),
-                'team_two' => $team2->get('G1'),
+                'game_name'         => $game_name,
+                'game_id'           => $game_id,
+                'generated_name'    => $generated_name,
+                'team_one'          => $team1->get('G1'),
+                'team_two'          => $team2->get('G1'),
             ];
             return $item;
         });
 
         if ($gameNumber >= 2) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
+                $game_name = $team1->get('G2')->game_name;
+                $game_id = $team1->get('G2')->game_id;
+                $generated_name = $team1->get('G2')->generated_name;
+
+                unset($team1['G2']->game_name);
+                unset($team1['G2']->game_id);
+                unset($team1['G2']->generated_name);
+                unset($team2['G2']->game_name);
+                unset($team2['G2']->game_id);
+                unset($team2['G2']->generated_name);
+
                 $item->game_two = [
-                    'team_one' => $team1->get('G2'),
-                    'team_two' => $team2->get('G2'),
+                    'game_name'         => $game_name,
+                    'game_id'           => $game_id,
+                    'generated_name'    => $generated_name,
+                    'team_one'          => $team1->get('G2'),
+                    'team_two'          => $team2->get('G2'),
                 ];
                 return $item;
-            });  
+            });
         }
 
         if ($gameNumber >= 3) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
+                $game_name = $team1->get('G3')->game_name;
+                $game_id = $team1->get('G3')->game_id;
+                $generated_name = $team1->get('G3')->generated_name;
+
+                unset($team1['G3']->game_name);
+                unset($team1['G3']->game_id);
+                unset($team1['G3']->generated_name);
+                unset($team2['G3']->game_name);
+                unset($team2['G3']->game_id);
+                unset($team2['G3']->generated_name);
+
                 $item->game_three = [
-                    'team_one' => $team1->get('G3'),
-                    'team_two' => $team2->get('G3'),
+                    'game_name'         => $game_name,
+                    'game_id'           => $game_id,
+                    'generated_name'    => $generated_name,
+                    'team_one'          => $team1->get('G3'),
+                    'team_two'          => $team2->get('G3'),
                 ];
                 return $item;
-            });  
+            });
         }
 
         if ($gameNumber >= 4) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
+                $game_name = $team1->get('G4')->game_name;
+                $game_id = $team1->get('G4')->game_id;
+                $generated_name = $team1->get('G4')->generated_name;
+
+                unset($team1['G4']->game_name);
+                unset($team1['G4']->game_id);
+                unset($team1['G4']->generated_name);
+                unset($team2['G4']->game_name);
+                unset($team2['G4']->game_id);
+                unset($team2['G4']->generated_name);
+
                 $item->game_four = [
-                    'team_one' => $team1->get('G4'),
-                    'team_two' => $team2->get('G4'),
+                    'game_name'         => $game_name,
+                    'game_id'           => $game_id,
+                    'generated_name'    => $generated_name,
+                    'team_one'          => $team1->get('G4'),
+                    'team_two'          => $team2->get('G4'),
                 ];
                 return $item;
             });  
@@ -134,12 +211,26 @@ class MatchDetailsController extends Controller
 
         if ($gameNumber == 5) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
+                $game_name = $team1->get('G5')->game_name;
+                $game_id = $team1->get('G5')->game_id;
+                $generated_name = $team1->get('G5')->generated_name;
+
+                unset($team1['G5']->game_name);
+                unset($team1['G5']->game_id);
+                unset($team1['G5']->generated_name);
+                unset($team2['G5']->game_name);
+                unset($team2['G5']->game_id);
+                unset($team2['G5']->generated_name);
+
                 $item->game_five = [
-                    'team_one' => $team1->get('G5'),
-                    'team_two' => $team2->get('G5'),
+                    'game_name'         => $game_name,
+                    'game_id'           => $game_id,
+                    'generated_name'    => $generated_name,
+                    'team_one'          => $team1->get('G5'),
+                    'team_two'          => $team2->get('G5'),
                 ];
                 return $item;
-            });  
+            });   
         }
 
         return $this->response->array($rows);
