@@ -21,13 +21,11 @@ class MatchDetailsController extends Controller
     			->where('matches.api_id_long', $matchId)
     			->get();
 
-        
-
     	$filtered = $rows->filter(function ($value, $key) {
             return $value->resource_type == 'roster';
         });
 
-        $rosters = $filtered->pluck('api_resource_id_one')->union($filtered->pluck('api_resource_id_two'))->unique();
+        $rosters = $filtered->pluck('api_resource_id_one')->push($filtered->pluck('api_resource_id_two')->first());
 
         $columns = [
             'rosters.api_id_long', 'teams.name', 'teams.team_photo_url', 'teams.logo_url', 
@@ -62,25 +60,24 @@ class MatchDetailsController extends Controller
     			->get();
 
     	$games = $games->filter(function ($value, $key) {
-    				return $value->game_id !== null;
-    			});
+			return $value->game_id !== null;
+		});
 
         $team1 = $games->where('team_id', 100)->keyBy('game_name');
         $team2 = $games->where('team_id', 200)->keyBy('game_name');
 
-        $gameids = $games->pluck('game_id')->unique();
+        $gameIds = $games->pluck('game_id')->unique();
 
-        $gameNumber = $gameids->count();
+        $gameNumber = $gameIds->count();
 
-        //dd($gameids);
         $teamOnePlayers = DB::table('game_player_stats')
-                        ->whereIn('game_id', $gameids)
+                        ->whereIn('game_id', $gameIds)
                         ->where('team_id', 100)
                         ->get()
                         ->groupBy('game_id');
 
         $teamTwoPlayers = DB::table('game_player_stats')
-                        ->where('game_id', $gameids)
+                        ->whereIn('game_id', $gameIds)
                         ->where('team_id', 200)
                         ->get()
                         ->groupBy('game_id');
@@ -99,47 +96,47 @@ class MatchDetailsController extends Controller
 
         $rows->transform(function ($item, $key) use ($team1, $team2) {
             $item->game_one = [
-                'one' => $team1->get('G1'),
-                'two' => $team2->get('G1'),
+                'team_one' => $team1->get('G1'),
+                'team_two' => $team2->get('G1'),
             ];
             return $item;
         });
 
-        if ($gameNumber >= 2){
+        if ($gameNumber >= 2) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
                 $item->game_two = [
-                    'one' => $team1->get('G2'),
-                    'two' => $team2->get('G2'),
+                    'team_one' => $team1->get('G2'),
+                    'team_two' => $team2->get('G2'),
                 ];
                 return $item;
             });  
         }
 
-        if ($gameNumber >= 3){
+        if ($gameNumber >= 3) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
                 $item->game_three = [
-                    'one' => $team1->get('G3'),
-                    'two' => $team2->get('G3'),
+                    'team_one' => $team1->get('G3'),
+                    'team_two' => $team2->get('G3'),
                 ];
                 return $item;
             });  
         }
 
-        if ($gameNumber >= 4){
+        if ($gameNumber >= 4) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
                 $item->game_four = [
-                    'one' => $team1->get('G4'),
-                    'two' => $team2->get('G4'),
+                    'team_one' => $team1->get('G4'),
+                    'team_two' => $team2->get('G4'),
                 ];
                 return $item;
             });  
         }
 
-        if ($gameNumber == 5){
+        if ($gameNumber == 5) {
             $rows->transform(function ($item, $key) use ($team1, $team2) {
                 $item->game_five = [
-                    'one' => $team1->get('G5'),
-                    'two' => $team2->get('G5'),
+                    'team_one' => $team1->get('G5'),
+                    'team_two' => $team2->get('G5'),
                 ];
                 return $item;
             });  
