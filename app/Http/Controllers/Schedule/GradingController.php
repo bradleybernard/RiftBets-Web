@@ -20,12 +20,14 @@ class GradingController extends Controller
 				->whereColumn('question_answers.game_id', '=','bets.game_id');
 		})
 		->join('questions', 'questions.id', '=', 'question_answers.question_id')
+		->join('users', 'users.id', '=', 'bets.user_id')
 		->whereNotNull('bets.game_id')
 		->update([
 			'bet_details.credits_won'	=> DB::raw('IF(bet_details.user_answer = question_answers.answer, bet_details.credits_placed * questions.multiplier, 0)'),
 			'bet_details.is_complete'	=> true,
 			'bet_details.won'			=> DB::raw('IF(bet_details.user_answer = question_answers.answer, 1, 0)'),
 			'bet_details.answer_id'		=> DB::raw('question_answers.id'),
+			'users.bets_placed'			=> DB::raw('users.bets_placed+1')
 		]);
 
 		DB::update('UPDATE bets 
@@ -33,6 +35,7 @@ class GradingController extends Controller
 			INNER JOIN users ON users.id = bets.user_id
 			SET users.credits = users.credits+bets.credits_won,
 				bets.is_complete = 1,
+				-- bets.won = (SELECT SUM(bets.won)
 				bets.credits_won = (SELECT SUM(bet_details.credits_won)
 			FROM bet_details WHERE bet_id = bets.id)
 			WHERE bets.is_complete = 0 

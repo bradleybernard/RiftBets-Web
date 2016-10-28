@@ -19,6 +19,7 @@ $api->version('v1', function ($api)
     $api->post('auth/facebook', 'App\Http\Controllers\Facebook\FacebookController@facebook');
     $api->get('schedule', 'App\Http\Controllers\Queries\ScheduleController@query');
     $api->get('matchdetails', 'App\Http\Controllers\Queries\MatchDetailsController@query');
+    $api->post('userbets', 'App\Http\Controllers\Queries\UserBetsController@query');
 
     $api->group(['middleware' => 'api.auth'], function ($api) {
         $api->post('bets/create', 'App\Http\Controllers\Bets\BetsController@bet');
