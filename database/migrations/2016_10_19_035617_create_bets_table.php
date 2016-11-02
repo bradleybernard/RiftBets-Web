@@ -23,6 +23,7 @@ class CreateBetsTable extends Migration
             $table->boolean('is_complete')->default(False);
             $table->integer('details_placed');
             $table->boolean('won')->default(False);
+            $table->boolean('is_counted')->default(False);
             $table->timestamps();
         });
     }

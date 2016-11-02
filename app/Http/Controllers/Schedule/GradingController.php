@@ -40,16 +40,22 @@ class GradingController extends Controller
 		DB::update('UPDATE bets 
 			INNER JOIN bet_details ON bet_details.bet_id = bets.id
 			INNER JOIN users ON users.id = bets.user_id
-			SET users.credits = users.credits+bets.credits_won,
-				bets.is_complete = 1,
-				users.bets_won_weekly = IF(bets.won = 1, users.bets_won_weekly+1, users.bets_won_weekly),
-				users.bets_won_monthly = IF(bets.won = 1, users.bets_won_monthly+1, users.bets_won_monthly),
-				users.credits = users.credits+bets.credits_won,
+			SET bets.is_complete = 1,
 				bets.won = IF((SELECT SUM(bet_details.won) FROM bet_details where bet_id = bets.id) = bets.details_placed, 1, 0),
-				bets.credits_won = (SELECT SUM(bet_details.credits_won)
-			FROM bet_details WHERE bet_id = bets.id)
-			WHERE bets.is_complete = 0 
-			AND bet_details.is_complete = 1');
+				bets.credits_won = (SELECT SUM(bet_details.credits_won)FROM bet_details WHERE bet_id = bets.id)WHERE bets.is_complete = 0 AND bet_details.is_complete = 1'
+				);
+
+		DB::table('bets')
+		->where('bets.is_counted', 0)
+		->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
+		->join('users', 'users.id', '=', 'bets.user_id')
+		->update([
+			'bets.is_counted'			=> true,
+			'users.bets_won_weekly'		=> DB::raw('IF(bets.won = 1, users.bets_won_weekly+1, users.bets_won_weekly)'),
+			'users.bets_won_monthly'	=> DB::raw('IF(bets.won = 1, users.bets_won_monthly+1, users.bets_won_monthly)'),
+			'users.bets_won_streak'		=> DB::raw('IF(bets.won = 1, users.bets_won_streak+1, 0)'),
+			'users.credits'				=> DB::raw('users.credits+bets.credits_won')
+		]);
 	}
 
 	public function bets()
@@ -119,7 +125,7 @@ class GradingController extends Controller
 			'credits_placed'    => 10000,
 			'api_game_id'       => $gameIdLong,
 			'game_id'			=> $gameId,
-			'details_placed'	=> 1
+			'details_placed'	=> 2
 		]);
 
 		foreach($bets as &$bet) {
