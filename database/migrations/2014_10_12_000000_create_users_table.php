@@ -19,9 +19,11 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique()->nullable();
             $table->integer('credits')->default(0);
-            $table->integer('credits_won')->default(0);
             $table->integer('bets_placed')->default(0);
             $table->integer('bets_won')->default(0);
+            $table->integer('bets_won_weekly')->default(0);
+            $table->integer('bets_won_monthly')->default(0);
+            $table->integer('bets_won_streak')->default(0);
             $table->string('device_token')->nullable();
             $table->rememberToken();
             $table->timestamps();

@@ -6,12 +6,19 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use \Carbon\Carbon;
 use DB;
 
 class GradingController extends Controller
 {
 	public function grade()
 	{
+		$now = Carbon::now();
+		$start = $now->startOfWeek()->subHours(24);
+		$end = $start->addDays(7)->toDateTimeString();
+		$start = $start->toDateTimeString();
+		// dd($end);
+
 		DB::table('bets')
 		->where('bets.is_complete', 0)
 		->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
@@ -35,7 +42,10 @@ class GradingController extends Controller
 			INNER JOIN users ON users.id = bets.user_id
 			SET users.credits = users.credits+bets.credits_won,
 				bets.is_complete = 1,
-				-- bets.won = (SELECT SUM(bets.won)
+				users.bets_won_weekly = IF(bets.won = 1, users.bets_won_weekly+1, users.bets_won_weekly),
+				users.bets_won_monthly = IF(bets.won = 1, users.bets_won_monthly+1, users.bets_won_monthly),
+				users.credits = users.credits+bets.credits_won,
+				bets.won = IF((SELECT SUM(bet_details.won) FROM bet_details where bet_id = bets.id) = bets.details_placed, 1, 0),
 				bets.credits_won = (SELECT SUM(bet_details.credits_won)
 			FROM bet_details WHERE bet_id = bets.id)
 			WHERE bets.is_complete = 0 
@@ -61,47 +71,47 @@ class GradingController extends Controller
 				'credits_placed'    => 500
 			],
 			// team win: ROX
-			[
-				'question_id'       => 2,
-				'user_answer'       => '100',
-				'credits_placed'    => 500
-			],
-			// team first blood: rox
-			[
-				'question_id'       => 3,
-				'user_answer'       => '100',
-				'credits_placed'    => 500
-			],
-			// team first inhib: rox
-			[
-				'question_id'       => 4,
-				'user_answer'       => '100',
-				'credits_placed'    => 500
-			],
-			// team_one_dragon_kills (rox): 3
-			[
-				'question_id'       => 17,
-				'user_answer'       => '3',
-				'credits_placed'    => 500
-			],
-			// team_two_dragon_kills (skt): 1
-			[
-				'question_id'       => 18,
-				'user_answer'       => '1',
-				'credits_placed'    => 500
-			],
-			// team one ban first champ: ryze
-			[
-				'question_id'       => 21,
-				'user_answer'       => '13',
-				'credits_placed'    => 500
-			],
-			// team two ban second champ: sol
-			[
-				'question_id'       => 24,
-				'user_answer'       => '136',
-				'credits_placed'    => 500
-			]
+			// [
+			// 	'question_id'       => 2,
+			// 	'user_answer'       => '100',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team first blood: rox
+			// [
+			// 	'question_id'       => 3,
+			// 	'user_answer'       => '100',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team first inhib: rox
+			// [
+			// 	'question_id'       => 4,
+			// 	'user_answer'       => '100',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team_one_dragon_kills (rox): 3
+			// [
+			// 	'question_id'       => 17,
+			// 	'user_answer'       => '3',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team_two_dragon_kills (skt): 1
+			// [
+			// 	'question_id'       => 18,
+			// 	'user_answer'       => '1',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team one ban first champ: ryze
+			// [
+			// 	'question_id'       => 21,
+			// 	'user_answer'       => '13',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team two ban second champ: sol
+			// [
+			// 	'question_id'       => 24,
+			// 	'user_answer'       => '136',
+			// 	'credits_placed'    => 500
+			// ]
 		];
 
 		$betId = DB::table('bets')->insertGetId([
@@ -109,6 +119,7 @@ class GradingController extends Controller
 			'credits_placed'    => 10000,
 			'api_game_id'       => $gameIdLong,
 			'game_id'			=> $gameId,
+			'details_placed'	=> 1
 		]);
 
 		foreach($bets as &$bet) {
