@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bets;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use \Carbon\Carbon;
 
 use Validator;
 use DB;
@@ -12,11 +13,6 @@ use DB;
 class BetsController extends Controller
 {
 	protected $games;
-
-	private function isBeforeGameTime($games, $match)
-	{
-
-	}
 
 	public function bet(Request $request)
 	{
@@ -72,6 +68,58 @@ class BetsController extends Controller
 		if(!$games) {
 			throw new \Dingo\Api\Exception\ResourceException('Invalid match ID.', $validator->errors());
 		}
+
+		/*$matchState = DB::table('matches')->select('state')
+						->where('api_id_long', $match->api_match_id)
+						->first();
+
+		if($matchState->state == 'resolved')
+		{
+			throw new \Dingo\Api\Exception\ResourceException('Match has already resolved.', $validator->errors());
+		}*/
+
+		$gameStart = DB::table('schedule')->select('scheduled_time')
+						->where('api_match_id', $match->api_match_id)
+						->first();
+
+		$gameName = $games[$request->input('bets.0.api_game_id')]->name;
+
+		$matchGames = DB::table('games')->select(['name as game_name', 'game_id'])
+						->where('api_match_id', $match->api_match_id)
+						->get()
+						->unique('game_name')
+						->keyBy('game_name');
+
+		$mytime = Carbon::now();
+
+		if ($gameName == 'G1')
+		{
+			$gameStart = Carbon::parse($gameStart->scheduled_time);
+
+			$difference = $mytime->diffInMinutes($gameStart);
+
+			if ($difference > 5){
+				throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
+			}
+		} else
+		{
+			chunk_split($gameName);
+			explode('.', $gameName);
+
+			$prevGame = DB::table('game_mappings')->select('created_at')
+							->where('game_id', $matchGames['G'.$gameName[1]]->game_id)
+							->first();
+
+			$nextGame = Carbon::parse($prevGame->created_at);
+			$nextGame->addMinutes(15);
+
+			$difference = $mytime->diffInMinutes($prevGame);
+
+			if($difference > 0){
+				throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
+			}
+		}
+
 
 		// $betId = DB::table('bets')->insertGetId([
 		// 	'user_id'			=> $request['user_id'],
