@@ -10,9 +10,9 @@ use DB;
 
 class MatchDetailsController extends Controller
 {
-    public function query()
+    public function query(Request $request)
     {
-    	$matchId = '0dae40a2-fdcb-4539-9c39-376c545438fb';
+    	$matchId = $request['matchid'];
 
     	$columns = ['matches.api_id_long', 'matches.name', 'resource_type', 'matches.api_resource_id_one', 'matches.api_resource_id_two',
     			 'matches.score_one', 'matches.score_two'];
