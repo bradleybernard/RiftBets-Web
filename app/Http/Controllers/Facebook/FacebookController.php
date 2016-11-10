@@ -9,6 +9,7 @@ use App\Http\Requests;
 use DB;
 use App\User;
 use JWTAuth;
+use Log;
 
 class FacebookController extends Controller
 {
@@ -20,6 +21,7 @@ class FacebookController extends Controller
     	try {
   			$response = $fb->get('/me?fields=id,name,email', $accessToken);
 		} catch(\Facebook\Exceptions\FacebookSDKException $e) {
+            Log::error($e->getMessage());
   			dd($e->getMessage());
 		}
 
@@ -31,6 +33,12 @@ class FacebookController extends Controller
                 'name'        => $userNode->getName(),
                 'email'       => $userNode->getEmail(),
                 'credits'      => 0
+            ]);
+
+            DB::table('user_stats')->insert([
+                'user_id'       => $user->id,
+                'created_at'    => \Carbon\Carbon::now(),
+                'updated_at'    => \Carbon\Carbon::now(),
             ]);
         }
 

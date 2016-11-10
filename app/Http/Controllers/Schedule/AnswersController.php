@@ -40,7 +40,6 @@ class AnswersController extends Controller
             ];
         }
         
-
         DB::table('question_answers')->insert($answers);
     }
 

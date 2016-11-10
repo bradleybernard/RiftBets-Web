@@ -79,11 +79,8 @@ class ScheduleController extends Controller
             return $item;
         });
 
-
-
         $rows = $rows->groupBy('scheduled_date');
 
         return $this->response->array($rows);
-
     }
 }
