@@ -13,12 +13,6 @@ class GradingController extends Controller
 {
 	public function grade()
 	{
-		$now = Carbon::now();
-		$start = $now->startOfWeek()->subHours(24);
-		$end = $start->addDays(7)->toDateTimeString();
-		$start = $start->toDateTimeString();
-		// dd($end);
-
 		DB::table('bets')
 		->where('bets.is_complete', 0)
 		->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
@@ -47,14 +41,24 @@ class GradingController extends Controller
 
 		DB::table('bets')
 		->where('bets.is_counted', 0)
-		->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
 		->join('users', 'users.id', '=', 'bets.user_id')
+		->join('user_stats', 'user_stats.user_id', '=', 'users.id')
 		->update([
 			'bets.is_counted'				=> true,
-			'users.bets_won_weekly'			=> DB::raw('IF(bets.won = 1, users.bets_won_weekly+1, users.bets_won_weekly)'),
-			'users.bets_won_monthly'		=> DB::raw('IF(bets.won = 1, users.bets_won_monthly+1, users.bets_won_monthly)'),
-			'users.bets_won_streak_weekly'	=> DB::raw('IF(bets.won = 1, users.bets_won_streak_weekly+1, 0)'),
-			'users.bets_won_streak_monthly'	=> DB::raw('IF(bets.won = 1, users.bets_won_streak_monthly+1, 0)'),
+
+			'user_stats.bets_won' 			=> DB::raw('IF (bets.won = 1, user_stats.bets_won + 1, user_stats.bets_won)'),
+            'user_stats.bets_lost' 			=> DB::raw('IF (bets.won = 0, user_stats.bets_lost + 1, user_stats.bets_lost)'),
+            'user_stats.bets_complete' 		=> DB::raw('user_stats.bets_complete + 1'),
+
+            'user_stats.weekly_streak' 		=> DB::raw('IF (bet_details.won = 1, user_stats.weekly_streak + 1, 0)'),
+            'user_stats.monthly_streak' 	=> DB::raw('IF (bet_details.won = 1, user_stats.monthly_streak + 1, 0)'),
+            'user_stats.alltime_streak' 	=> DB::raw('IF (bet_details.won = 1, user_stats.alltime_streak + 1, 0)'),
+
+            'user_stats.weekly_wins' 		=> DB::raw('IF (bet_details.won = 1, user_stats.weekly_wins + 1, user_stats.weekly_wins)'),
+            'user_stats.monthly_wins' 		=> DB::raw('IF (bet_details.won = 1, user_stats.monthly_wins + 1, user_stats.monthly_wins)'),
+            'user_stats.alltime_wins' 		=> DB::raw('IF (bet_details.won = 1, user_stats.alltime_wins + 1, user_stats.alltime_wins)'),
+            'user_stats.redis_update' 		=> 1,
+
 			'users.credits'					=> DB::raw('users.credits+bets.credits_won'),
 			'users.bets_won'				=> DB::raw('IF(bets.won = 1, users.bets_won+1, users.bets_won)'),
 		]);
