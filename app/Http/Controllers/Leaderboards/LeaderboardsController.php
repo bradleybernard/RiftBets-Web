@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Leaderboard;
+namespace App\Http\Controllers\Leaderboards;
 
 use Illuminate\Http\Request;
 
@@ -11,7 +11,7 @@ use Redis;
 use DB;
 use Validator;
 
-class LeaderboardController extends Controller
+class LeaderboardsController extends Controller
 {
     const PREFIX = 'lb_';
     protected $redis;
@@ -101,7 +101,7 @@ class LeaderboardController extends Controller
         });
     }
 
-    public function leaderboard(Request $request)
+    public function leaderboards(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'leaderboard'   => 'required|exists:leaderboards,stat',
@@ -117,10 +117,10 @@ class LeaderboardController extends Controller
 
         $userIds = $this->redis->ZREVRANGE(self::PREFIX . $request->get('leaderboard'), $request->get('start'), $request->get('end'));
       
-        // if(!in_array($userId, $userIds))
-        // {
-        //     $userIds[] = $userId;
-        // }
+        if($this->auth->user() && !in_array($this->auth->user()->id, $userIds))
+        {
+            $userIds[] = $this->auth->user()->id;
+        }
 
         $userColumns = [
             'users.id',
@@ -143,10 +143,10 @@ class LeaderboardController extends Controller
         {
             $sortedUsers[$desired[$user->id]] = $user;
 
-            // if($user->id == $userId)
-            // {
-            //     $json['me'] = $user;
-            // }
+            if($this->auth->user() && $user->id == $this->auth->user()->id)
+            {
+                $json['me'] = $user;
+            }
         }
 
         ksort($sortedUsers);

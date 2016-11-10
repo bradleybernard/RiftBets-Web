@@ -21,6 +21,8 @@ $api->version('v1', function ($api)
     $api->get('schedule', 'App\Http\Controllers\Queries\ScheduleController@query');
     $api->get('match', 'App\Http\Controllers\Queries\MatchDetailsController@query');
 
+    $api->get('leaderboards', 'App\Http\Controllers\Leaderboards\LeaderboardsController@leaderboards');
+
     $api->group(['middleware' => 'api.auth'], function ($api) {
         $api->post('bets/create', 'App\Http\Controllers\Bets\BetsController@bet');
         $api->post('user/bets', 'App\Http\Controllers\Queries\UserBetsController@query');

@@ -10,10 +10,13 @@
 | to using a Closure or controller method. Build something great!
 |
 */
+Route::get('token', function() {
+    return JWTAuth::fromUser(App\User::find(1));
+});
 
-Route::get('setup', 'Leaderboard\LeaderboardController@setup');
-Route::get('populate', 'Leaderboard\LeaderboardController@populate');
-Route::get('leaderboard', 'Leaderboard\LeaderboardController@leaderboard');
+Route::get('setup', 'Leaderboards\LeaderboardsController@setup');
+Route::get('populate', 'Leaderboards\LeaderboardsController@populate');
+Route::get('leaderboard', 'Leaderboards\LeaderboardsController@leaderboard');
 
 Route::get('scrape/leagues', 'Scrape\LeaguesController@scrape');
 Route::get('scrape/players', 'Scrape\PlayersController@scrape');
