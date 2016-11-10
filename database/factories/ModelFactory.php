@@ -12,12 +12,26 @@
 */
 
 $factory->define(App\User::class, function (Faker\Generator $faker) {
-    static $password;
-
     return [
-        'name' => $faker->name,
-        'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
+        'facebook_id'   => $faker->unique()->randomNumber(4),
+        'name'          => $faker->firstName() . ' ' . $faker->lastName(),
+        'email'         => $faker->unique()->safeEmail,
+        'credits'       => $faker->numberBetween(0, 100000),
+    ];
+});
+
+$factory->define(App\UserStats::class, function (Faker\Generator $faker) {
+    return [
+        'user_id'           => factory(App\User::class)->create()->id,
+        'bets_won'          => $faker->numberBetween(0, 100000),
+        'bets_lost'         => $faker->numberBetween(0, 100000),
+        'bets_complete'     => $faker->numberBetween(0, 100000),
+        'weekly_streak'     => $faker->numberBetween(0, 100000),
+        'monthly_streak'    => $faker->numberBetween(0, 100000),
+        'alltime_streak'    => $faker->numberBetween(0, 100000),
+        'weekly_wins'       => $faker->numberBetween(0, 100000),
+        'monthly_wins'      => $faker->numberBetween(0, 100000),
+        'alltime_wins'      => $faker->numberBetween(0, 100000),
+        'redis_update'      => 1,
     ];
 });

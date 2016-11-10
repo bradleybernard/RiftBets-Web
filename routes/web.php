@@ -11,6 +11,10 @@
 |
 */
 
+Route::get('setup', 'Leaderboard\LeaderboardController@setup');
+Route::get('populate', 'Leaderboard\LeaderboardController@populate');
+Route::get('leaderboard', 'Leaderboard\LeaderboardController@leaderboard');
+
 Route::get('scrape/leagues', 'Scrape\LeaguesController@scrape');
 Route::get('scrape/players', 'Scrape\PlayersController@scrape');
 Route::get('scrape/timeline', 'Scrape\TimelineController@scrape');

@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\ScrapeLoLEsports::class,
-        Commands\ScrapeDDragon::class
+        Commands\ScrapeDDragon::class,
+        Commands\LeaderboardFlush::class,
     ];
 
     /**

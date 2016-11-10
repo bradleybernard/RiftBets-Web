@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Schedule;
 
 use Illuminate\Http\Request;
+use App\Jobs\UpdateLeaderboards;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -62,6 +63,8 @@ class GradingController extends Controller
 
 			'users.credits'					=> DB::raw('users.credits+bets.credits_won'),
 		]);
+
+		dispatch(new UpdateLeaderboards());
 	}
 
 	public function resetWeekly()
@@ -98,48 +101,48 @@ class GradingController extends Controller
 				'user_answer'       => '2222',
 				'credits_placed'    => 500
 			],
-			// team win: ROX
-			[
-				'question_id'       => 2,
-				'user_answer'       => '100',
-				'credits_placed'    => 500
-			],
-			// team first blood: rox
-			[
-				'question_id'       => 3,
-				'user_answer'       => '100',
-				'credits_placed'    => 500
-			],
-			// team first inhib: rox
-			[
-				'question_id'       => 4,
-				'user_answer'       => '100',
-				'credits_placed'    => 500
-			],
-			// team_one_dragon_kills (rox): 3
-			[
-				'question_id'       => 17,
-				'user_answer'       => '3',
-				'credits_placed'    => 500
-			],
-			// team_two_dragon_kills (skt): 1
-			[
-				'question_id'       => 18,
-				'user_answer'       => '1',
-				'credits_placed'    => 500
-			],
-			// team one ban first champ: ryze
-			[
-				'question_id'       => 21,
-				'user_answer'       => '13',
-				'credits_placed'    => 500
-			],
-			// team two ban second champ: sol
-			[
-				'question_id'       => 24,
-				'user_answer'       => '136',
-				'credits_placed'    => 500
-			]
+			// // team win: ROX
+			// [
+			// 	'question_id'       => 2,
+			// 	'user_answer'       => '100',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team first blood: rox
+			// [
+			// 	'question_id'       => 3,
+			// 	'user_answer'       => '100',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team first inhib: rox
+			// [
+			// 	'question_id'       => 4,
+			// 	'user_answer'       => '100',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team_one_dragon_kills (rox): 3
+			// [
+			// 	'question_id'       => 17,
+			// 	'user_answer'       => '3',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team_two_dragon_kills (skt): 1
+			// [
+			// 	'question_id'       => 18,
+			// 	'user_answer'       => '1',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team one ban first champ: ryze
+			// [
+			// 	'question_id'       => 21,
+			// 	'user_answer'       => '13',
+			// 	'credits_placed'    => 500
+			// ],
+			// // team two ban second champ: sol
+			// [
+			// 	'question_id'       => 24,
+			// 	'user_answer'       => '136',
+			// 	'credits_placed'    => 500
+			// ]
 		];
 
 		$betId = DB::table('bets')->insertGetId([
