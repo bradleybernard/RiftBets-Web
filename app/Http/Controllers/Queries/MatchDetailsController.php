@@ -16,8 +16,12 @@ class MatchDetailsController extends Controller
     	$matchId = $request['match_id'];
 
         $validator = Validator::make($request->all(), [
-            'matchid' => 'exists:matches, api_id_long'
+            'match_id' => 'exists:matches,api_id_long'
         ]);
+
+        if ($validator->fails()) {
+            throw new \Dingo\Api\Exception\ResourceException('Invalid match id.', $validator->errors());
+        }
 
     	$columns = ['matches.api_id_long', 'matches.name', 'resource_type', 'matches.api_resource_id_one', 'matches.api_resource_id_two',
     			 'matches.score_one', 'matches.score_two'];
@@ -224,14 +228,34 @@ class MatchDetailsController extends Controller
             }
         }
 
-        $team1->transform(function ($item, $key) use ($teamOnePlayers)
-        {
+        $banIndex = ['ban_1', 'ban_2', 'ban_3'];
+
+        $team1->transform(function ($item, $key) use ($teamOnePlayers, $champions, $banIndex)
+        {   
+            foreach ($banIndex as $index) 
+            {
+                $item->{$index} = [
+                    'champion_id'   => $item->{$index},
+                    'champion_name' => $champions->get($item->{$index})->champion_name,
+                    'image_url'     => $champions->get($item->{$index})->image_url,
+                ];
+            }
+
             $item->player_stats = $teamOnePlayers[$item->game_id]->keyBy('participant_id')->all();
             return $item;
         }); 
 
-        $team2->transform(function ($item, $key) use ($teamTwoPlayers)
+        $team2->transform(function ($item, $key) use ($teamTwoPlayers, $champions, $banIndex)
         {
+            foreach ($banIndex as $index)
+            {
+                $item->{$index} = [
+                    'champion_id'   => $item->{$index},
+                    'champion_name' => $champions->get($item->{$index})->champion_name,
+                    'image_url'     => $champions->get($item->{$index})->image_url,
+                ];
+            }
+
             $item->players_stats = $teamTwoPlayers[$item->game_id]->keyBy('participant_id')->all();
             return $item;
         });
