@@ -30,7 +30,7 @@ class DDragonController extends ScrapeController
 
     private function url($group, $full)
     {
-        return 'http://ddragon.leagueoflegends.com/cdn/' . $this->apiVersion . '/img//' . $group . '/' . $full;
+        return 'http://ddragon.leagueoflegends.com/cdn/' . $this->apiVersion . "/img/" . $group . '/' . $full;
     }
 
     private function insertProfileIcons()
