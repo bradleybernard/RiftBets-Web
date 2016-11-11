@@ -7,12 +7,17 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use DB;
+use Validator;
 
 class MatchDetailsController extends Controller
 {
     public function query(Request $request)
     {
     	$matchId = $request['match_id'];
+
+        $validator = Validator::make($request->all(), [
+            'matchid' => 'exists:matches, api_id_long'
+        ]);
 
     	$columns = ['matches.api_id_long', 'matches.name', 'resource_type', 'matches.api_resource_id_one', 'matches.api_resource_id_two',
     			 'matches.score_one', 'matches.score_two'];

@@ -18,7 +18,8 @@ class GameStatsController extends ScrapeController
 		//$gameId = '1001890201';
 		//$gameHash = '6751c4ef7ef58654';
 
-		$games = DB::table('game_mappings')->select(['game_id', 'game_hash'])
+		$games = DB::table('game_mappings')->select(['game_mappings.game_id', 'game_mappings.game_hash', 'games.name as game_name'])
+					->join('games', 'games.game_id', '=', 'game_mappings.game_id') 
 					->get();
 
 		foreach ($games as $game)
@@ -53,11 +54,13 @@ class GameStatsController extends ScrapeController
 		    	'game_type'		=>	$response->gameType
 		    ];
 
+		    $swapSides = substr($game->game_name, 1, 1) % 2 == 0;
+
 		    foreach ($response->teams as $team) 
 		    {
 		    	$teamStats[] = [
 		    		'game_id'				=> $gameId,
-			    	'team_id'				=> $team->teamId,
+			    	'team_id'				=> $this->fixSide($swapSides, $team->teamId),
 			    	'win'					=> $this->parseWin($team->win),
 			    	'first_blood'			=> $team->firstBlood,
 			    	'first_tower'			=> $team->firstTower,
@@ -86,9 +89,9 @@ class GameStatsController extends ScrapeController
 		    foreach ($response->participants as $player) 
 		    {
 		    	$playerStats[] = [
-		    		'game_id'				=> $gameId,
-			    	'participant_id'		=> $player->participantId,
-			    	'team_id'				=> $player->teamId,
+		    		'game_id'				=> $gameId,	
+			    	'participant_id'		=> $this->fixParticipant($swapSides, $player->teamId, $player->participantId),
+			    	'team_id'				=> $this->fixSide($swapSides, $player->teamId),
 			    	'champion_id'			=> $player->championId,
 			    	'spell1_id'				=> $player->spell1Id,
 			    	'spell2_id'				=> $player->spell2Id,
@@ -115,6 +118,50 @@ class GameStatsController extends ScrapeController
 		}
 	}
 
+
+	private function fixApiIds()
+	{
+		$columns = [
+			'matches.api_id_long', 'matches.api_resource_id_one', 'matches.api_resource_id_two',
+			'games.game_id'
+		];
+
+		$matches = DB::table('matches')->select($columns)
+						->join('games', 'games.api_match_id', '=', 'matches.api_id_long')
+						->where('games.name', 'G1')
+						->get()
+						->keyBy('api_id_long');
+
+		foreach($matches as $match)
+		{
+			$game = DB::table('game_player_stats')->select('summoner_name')
+						->where('game_id', $match->game_id)
+						->where('participant_id', '1')
+						->get()
+						->first();
+
+			$game = substr($game->summoner_name, 0, 3);
+
+			$name_one = DB::table('rosters')->select('rosters.name as team_name')
+							->where('api_id_long', $match->api_resource_id_one)
+							->get()
+							->first();
+
+			if (strlen($name_one->team_name) < 3)
+			{
+				$name_one->team_name = $name_one->team_name .' ';
+			}
+
+			if($game == $name_one->team_name)
+			{
+				
+			} else
+			{
+				dd($match);
+			}
+		}
+	}
+
 	private function cleanItem($itemId) 
 	{
 		return ($itemId == 0 ? null : $itemId);
@@ -123,5 +170,39 @@ class GameStatsController extends ScrapeController
 	private function parseWin($win)
 	{
 		return ($win == 'Fail' ? false : true);
+	}
+
+	private function fixSide($swapSides, $teamId)
+	{
+		if($swapSides)
+		{
+			if ($teamId == 100)
+			{
+				return 200;
+			} 
+			else
+			{
+				return 100;
+			}
+		}
+
+		return $teamId;
+	}
+
+	private function fixParticipant($swapSides, $teamId, $participant)
+	{
+		if($swapSides)
+		{
+			if ($teamId == 100)
+			{
+				return $participant + 5;
+			}
+			else
+			{
+				return $participant - 5;
+			}
+		}
+
+		return $participant;
 	}
 }
