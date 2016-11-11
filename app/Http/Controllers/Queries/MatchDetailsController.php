@@ -138,7 +138,12 @@ class MatchDetailsController extends Controller
 
         foreach($allGames as $gameKey => $property) {
             $rows->transform(function ($item, $key) use ($team1, $team2, $gameKey, $property) {
-
+                
+                if(!$team1->get($gameKey)) 
+                {
+                    continue;
+                }
+                
                 $game_name = $team1->get($gameKey)->game_name;
                 $game_id = $team1->get($gameKey)->game_id;
                 $generated_name = $team1->get($gameKey)->generated_name;
