@@ -96,13 +96,88 @@ class MatchDetailsController extends Controller
                         ->get()
                         ->groupBy('game_id');
 
+        $allplayers = DB::table('game_player_stats')
+                        ->whereIn('game_id', $gameIds)
+                        ->get()
+                        ->groupBy('game_id');
+
+        $summoners = DB::table('ddragon_summoners')->select('api_id as spell_id', 'name as spell_name', 'image_url')
+                        ->get()
+                        ->keyBy('spell_id');
+
+        $champions = DB::table('ddragon_champions')->select('api_id as champion_id', 'champion_name', 'image_url')
+                        ->get()
+                        ->keyBy('champion_id');
+
+        $itemSlot = ['item_1', 'item_2', 'item_3', 'item_4', 'item_5', 'item_6'];
+
+        $items = collect([]);
+
+        foreach ($allplayers as $game)
+        {
+            foreach ($game as $player) 
+            {
+                foreach ($itemSlot as $value) 
+                {
+                    $items->push($player->{$value});
+
+                }
+            }
+        }
+
+        $items = $items->unique();
+
+        $items = $items->reject(function ($value, $key) {
+            return $value == null;
+        });
+
+        $items = $items->flatten()->toArray();
+
+        $allItems = DB::table('ddragon_items')->select(['api_id as item_id', 'name', 'image_url'])
+                        ->whereIn('api_id', $items)
+                        ->get()
+                        ->keyBy('item_id');
+
         foreach ($teamOnePlayers as $game)
         {
             foreach ($game as $player) 
             {   
+                $player->champion = [
+                    'champion_id'   => $player->champion_id,
+                    'champion_name' => $champions->get($player->champion_id)->champion_name,
+                    'image_url'     => $champions->get($player->champion_id)->image_url,
+                ];
+
+                $player->spell_1 = [
+                    'spell_id'      => $player->spell1_id,
+                    'spell_name'    => $summoners->get($player->spell1_id)->spell_name,
+                    'image_url'     => $summoners->get($player->spell1_id)->image_url,
+                ];
+
+                $player->spell_2 = [
+                    'spell_id'      => $player->spell2_id,
+                    'spell_name'    => $summoners->get($player->spell2_id)->spell_name,
+                    'image_url'     => $summoners->get($player->spell2_id)->image_url,
+                ];
+
+                foreach ($itemSlot as $key => $value) 
+                {
+                    if ($player->{$value})
+                    {
+                        $player->{$value} = [
+                            'item_id'   => $player->{$value},
+                            'item_name' => $allItems->get($player->{$value})->name,
+                            'image_url' => $allItems->get($player->{$value})->image_url,
+                        ];
+                    }
+                }
+
                 unset($player->id);
                 unset($player->game_id);
                 unset($player->profile_icon);
+                unset($player->spell1_id);
+                unset($player->spell2_id);
+                unset($player->champion_id);
             }
         }
 
@@ -110,9 +185,42 @@ class MatchDetailsController extends Controller
         {
             foreach ($game as $player) 
             {   
+                foreach ($itemSlot as $key => $value) 
+                {
+                    if ($player->{$value})
+                    {
+                        $player->{$value} = [
+                            'item_id'   => $player->{$value},
+                            'item_name' => $allItems->get($player->{$value})->name,
+                            'image_url' => $allItems->get($player->{$value})->image_url,
+                        ];
+                    }
+                }
+
+                $player->spell_1 = [
+                    'spell_id'      => $player->spell1_id,
+                    'spell_name'    => $summoners->get($player->spell1_id)->spell_name,
+                    'image_url'     => $summoners->get($player->spell1_id)->image_url,
+                ];
+
+                $player->spell_2 = [
+                    'spell_id'      => $player->spell2_id,
+                    'spell_name'    => $summoners->get($player->spell2_id)->spell_name,
+                    'image_url'     => $summoners->get($player->spell2_id)->image_url,
+                ];
+
+                $player->champion = [
+                    'champion_id'   => $player->champion_id,
+                    'champion_name' => $champions->get($player->champion_id)->champion_name,
+                    'image_url'     => $champions->get($player->champion_id)->image_url,
+                ];
+
                 unset($player->id);
                 unset($player->game_id);
                 unset($player->profile_icon);
+                unset($player->spell1_id);
+                unset($player->spell2_id);
+                unset($player->champion_id);
             }
         }
 
