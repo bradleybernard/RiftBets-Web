@@ -67,7 +67,7 @@ class LeaderboardFlush extends Command
 
             });
             
-            echo "Done with " . ($count++ * 750) . " rows.\n";
+            // echo "Done with " . ($count++ * 750) . " rows.\n";
 
         });
     }

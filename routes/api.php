@@ -11,7 +11,6 @@
 |
 */
 
-
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) 
@@ -22,6 +21,8 @@ $api->version('v1', function ($api)
     $api->get('match', 'App\Http\Controllers\Queries\MatchDetailsController@query');
 
     $api->get('leaderboards', 'App\Http\Controllers\Leaderboards\LeaderboardsController@leaderboards');
+    $api->get('leaderboards/rank', 'App\Http\Controllers\Leaderboards\LeaderboardsController@rank');
+    $api->get('leaderboards/around', 'App\Http\Controllers\Leaderboards\LeaderboardsController@around');
 
     $api->group(['middleware' => 'api.auth'], function ($api) {
         $api->post('bets/create', 'App\Http\Controllers\Bets\BetsController@bet');

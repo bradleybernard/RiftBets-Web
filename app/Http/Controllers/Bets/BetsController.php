@@ -25,7 +25,7 @@ class BetsController extends Controller
 		$request->merge(['user_credits' => $this->auth->user()->credits]);
 
 		$validator = Validator::make($request->all(), [
-			'bets.*'					=> 'required',
+			'bets.*'					=> 'required|array',
 		    'bets.*.api_game_id' 		=> 'required|same:bets.*.api_game_id',
 		    'bets.0.api_game_id'		=> 'exists:games,api_id_long',
 		    'bets.*.question_slug' 		=> 'required|distinct',
@@ -78,47 +78,47 @@ class BetsController extends Controller
 			throw new \Dingo\Api\Exception\ResourceException('Match has already resolved.', $validator->errors());
 		}*/
 
-		$gameStart = DB::table('schedule')->select('scheduled_time')
-						->where('api_match_id', $match->api_match_id)
-						->first();
+		// $gameStart = DB::table('schedule')->select('scheduled_time')
+		// 				->where('api_match_id', $match->api_match_id)
+		// 				->first();
 
-		$gameName = $games[$request->input('bets.0.api_game_id')]->name;
+		// $gameName = $games[$request->input('bets.0.api_game_id')]->name;
 
-		$matchGames = DB::table('games')->select(['name as game_name', 'game_id'])
-						->where('api_match_id', $match->api_match_id)
-						->get()
-						->unique('game_name')
-						->keyBy('game_name');
+		// $matchGames = DB::table('games')->select(['name as game_name', 'game_id'])
+		// 				->where('api_match_id', $match->api_match_id)
+		// 				->get()
+		// 				->unique('game_name')
+		// 				->keyBy('game_name');
 
-		$mytime = Carbon::now();
+		// $mytime = Carbon::now();
 
-		if ($gameName == 'G1')
-		{
-			$gameStart = Carbon::parse($gameStart->scheduled_time);
+		// if ($gameName == 'G1')
+		// {
+		// 	$gameStart = Carbon::parse($gameStart->scheduled_time);
 
-			$difference = $mytime->diffInMinutes($gameStart);
+		// 	$difference = $mytime->diffInMinutes($gameStart);
 
-			if ($difference > 5){
-				throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
-			}
-		} else
-		{
-			chunk_split($gameName);
-			explode('.', $gameName);
+		// 	if ($difference > 5){
+		// 		throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
+		// 	}
+		// } else
+		// {
+		// 	chunk_split($gameName);
+		// 	explode('.', $gameName);
 
-			$prevGame = DB::table('game_mappings')->select('created_at')
-							->where('game_id', $matchGames['G'.$gameName[1]]->game_id)
-							->first();
+		// 	$prevGame = DB::table('game_mappings')->select('created_at')
+		// 					->where('game_id', $matchGames['G'.$gameName[1]]->game_id)
+		// 					->first();
 
-			$nextGame = Carbon::parse($prevGame->created_at);
-			$nextGame->addMinutes(15);
+		// 	$nextGame = Carbon::parse($prevGame->created_at);
+		// 	$nextGame->addMinutes(15);
 
-			$difference = $mytime->diffInMinutes($prevGame);
+		// 	$difference = $mytime->diffInMinutes($prevGame);
 
-			if($difference > 0){
-				throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
-			}
-		}
+		// 	if($difference > 0){
+		// 		throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
+		// 	}
+		// }
 
 
 		// $betId = DB::table('bets')->insertGetId([
@@ -133,6 +133,8 @@ class BetsController extends Controller
 		// 	'user_answer'		=> $request['user_answer'],
 		// 	'credits_placed'	=> $request['credits_placed']
 		// ]);
+
+		return "yay";
 	}
 
 }
