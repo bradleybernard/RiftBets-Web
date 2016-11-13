@@ -299,6 +299,8 @@ class MatchDetailsController extends Controller
             });
         }
 
-        return $this->response->array($rows);
+        // dd($rows->toArray());
+
+        return $this->response->array((array)$rows->first());
     }
 }
