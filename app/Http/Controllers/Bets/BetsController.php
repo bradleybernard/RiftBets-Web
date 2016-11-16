@@ -16,16 +16,28 @@ class BetsController extends Controller
 
 	public function bet(Request $request)
 	{
-		/*
-		bets[0][api_game_id]:eddd9430-f53c-4227-8b5f-bf4fb7b39f05
-		bets[0][question_slug]:game_duration
-		bets[0][user_answer]:2222
-		bets[0][credits_placed]:500
-		*/
+		//Checking for:
+		//All game ids are same
+		//Enough credits are placed/in account and are positive
+		//Answer is filled out
+		//Question exists
+		//Match exists
+		//Previous game has already resolved
+		//Match isn't resolved already
+		//Game is within allowed time slot and not already in progress (15 mins after previous game for > G1)
+
 		$request->merge(['user_credits' => $this->auth->user()->credits]);
 
+
+		$gameId = $request['bets'][0]['api_game_id'];
+
+		foreach ($request['bets'] as $entry) {
+			if($entry['api_game_id'] != $gameId)
+				throw new \Dingo\Api\Exception\ResourceException('Game ID must match for all bets'); 
+		}
+
 		$validator = Validator::make($request->all(), [
-			'bets.*'					=> 'required|array',
+			'bets.*'					=> 'required',
 		    'bets.*.api_game_id' 		=> 'required|same:bets.*.api_game_id',
 		    'bets.0.api_game_id'		=> 'exists:games,api_id_long',
 		    'bets.*.question_slug' 		=> 'required|distinct',
@@ -69,72 +81,95 @@ class BetsController extends Controller
 			throw new \Dingo\Api\Exception\ResourceException('Invalid match ID.', $validator->errors());
 		}
 
-		/*$matchState = DB::table('matches')->select('state')
+
+		$matchState = DB::table('matches')->select('state')
 						->where('api_id_long', $match->api_match_id)
 						->first();
 
 		if($matchState->state == 'resolved')
 		{
 			throw new \Dingo\Api\Exception\ResourceException('Match has already resolved.', $validator->errors());
-		}*/
+		}
 
-		// $gameStart = DB::table('schedule')->select('scheduled_time')
-		// 				->where('api_match_id', $match->api_match_id)
-		// 				->first();
+		$gameStart = DB::table('schedule')->select('scheduled_time')
+						->where('api_match_id', $match->api_match_id)
+						->first();
 
-		// $gameName = $games[$request->input('bets.0.api_game_id')]->name;
+		$gameName = $games[$request->input('bets.0.api_game_id')]->name;
 
-		// $matchGames = DB::table('games')->select(['name as game_name', 'game_id'])
-		// 				->where('api_match_id', $match->api_match_id)
-		// 				->get()
-		// 				->unique('game_name')
-		// 				->keyBy('game_name');
+		$matchGames = DB::table('games')->select(['name as game_name', 'game_id'])
+						->where('api_match_id', $match->api_match_id)
+						->get()
+						->unique('game_name')
+						->keyBy('game_name');
 
-		// $mytime = Carbon::now();
+		$mytime = Carbon::now();
+		// $mytime = Carbon::create(2016, 10, 8, 19, 00, 0);
 
-		// if ($gameName == 'G1')
-		// {
-		// 	$gameStart = Carbon::parse($gameStart->scheduled_time);
+		if ($gameName == 'G1')
+		{
+			$gameStart = Carbon::parse($gameStart->scheduled_time);
 
-		// 	$difference = $mytime->diffInMinutes($gameStart);
+			$difference = $mytime->gt($gameStart);
 
-		// 	if ($difference > 5){
-		// 		throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
-		// 	}
-		// } else
-		// {
-		// 	chunk_split($gameName);
-		// 	explode('.', $gameName);
+			if ($difference){
+				throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
+			}
+		} else
+		{
+			$prevGameName = 'G'.(($gameName[1])-1);
 
-		// 	$prevGame = DB::table('game_mappings')->select('created_at')
-		// 					->where('game_id', $matchGames['G'.$gameName[1]]->game_id)
-		// 					->first();
+			if($matchGames[$prevGameName]->game_id == null)
+			{
+				throw new \Dingo\Api\Exception\ResourceException('Previous game has not resolved yet', $validator->errors());
+			}
 
-		// 	$nextGame = Carbon::parse($prevGame->created_at);
-		// 	$nextGame->addMinutes(15);
+			$prevGame = DB::table('game_mappings')->select('created_at')
+							->where('game_id', $matchGames[$gameName]->game_id)
+							->first();
 
-		// 	$difference = $mytime->diffInMinutes($prevGame);
+			$nextGame = Carbon::parse($prevGame->created_at);
+			$nextGame->addMinutes(15);
 
-		// 	if($difference > 0){
-		// 		throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
-		// 	}
-		// }
+			$difference = $mytime->gt($nextGame);
+
+			if($difference){
+				throw new \Dingo\Api\Exception\ResourceException('Invalid bet interval', $validator->errors());
+			}
+		}
 
 
-		// $betId = DB::table('bets')->insertGetId([
-		// 	'user_id'			=> $request['user_id'],
-		// 	'credits_placed'	=> $request['credits_placed']
-		// ]);
 
-		// DB::table('bet_details')->insert([
-		// 	'bet_id'			=> $betId,
-		// 	'game_id'			=> $request['game_id'],
-		// 	'question_id'		=> $request['question_id'],
-		// 	'user_answer'		=> $request['user_answer'],
-		// 	'credits_placed'	=> $request['credits_placed']
-		// ]);
+		$betId = DB::table('bets')->insertGetId([
+			'user_id'			=> $this->auth->user()->id,
+			'credits_placed'	=> $request['credits_placed'],
+			'api_game_id'		=> $request['credits_placed'],
+			'details_placed'	=> count($request['bets'])
+		]);
 
-		return "yay";
+
+		$questions = [];
+
+		foreach ($request['bets'] as $bet) {
+			array_push($questions, $bet['question_slug']);
+		}
+
+		$questionIds = DB::table('questions')->select('id')
+						->whereIn('slug', $questions)
+						->get();
+
+		$details = [];
+
+		for ($i=0; $i < count($request['bets']); $i++) {
+			$details[$i]['question_id'] = $questionIds[$i]->id;
+			$details[$i]['bet_id'] = $betId;
+			$details[$i]['user_answer'] = $request['bets'][$i]['user_answer'];
+			$details[$i]['credits_placed'] = $request['bets'][$i]['credits_placed'];
+		}
+
+
+
+		DB::table('bet_details')->insert($details);
 	}
 
 }
