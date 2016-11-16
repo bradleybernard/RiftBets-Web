@@ -14,6 +14,8 @@ use Sly\NotificationPusher\PushManager,
     Sly\NotificationPusher\Model\Message,
     Sly\NotificationPusher\Model\Push;
 
+use Config;
+
 class PushNotificationController extends Controller
 {
     public function push()
@@ -26,7 +28,7 @@ class PushNotificationController extends Controller
         ]);
 
         $devices = new DeviceCollection([
-            new Device('Token1', ['badge' => 5]),
+            new Device(\App\User::where('email', 'bradbernard@me.com')->first()->device_token),
         ]);
 
         $message = new Message('RiftBets life.');
