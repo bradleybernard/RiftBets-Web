@@ -16,13 +16,6 @@ class BetsController extends Controller
 
 	public function bet(Request $request)
 	{
-		/*
-		bets[0][api_game_id]:eddd9430-f53c-4227-8b5f-bf4fb7b39f05
-		bets[0][question_slug]:game_duration
-		bets[0][user_answer]:2222
-		bets[0][credits_placed]:500
-		*/
-
 		//Checking for:
 		//All game ids are same
 		//Enough credits are placed/in account and are positive
@@ -38,10 +31,10 @@ class BetsController extends Controller
 
 		$gameId = $request['bets'][0]['api_game_id'];
 
-		// foreach ($request['bets'] as $entry) {
-		// 	if($entry['api_game_id'] != $gameId)
-		// 		throw new \Dingo\Api\Exception\ResourceException('Game ID must match for all bets'); 
-		// }
+		foreach ($request['bets'] as $entry) {
+			if($entry['api_game_id'] != $gameId)
+				throw new \Dingo\Api\Exception\ResourceException('Game ID must match for all bets'); 
+		}
 
 		$validator = Validator::make($request->all(), [
 			'bets.*'					=> 'required',
@@ -93,10 +86,10 @@ class BetsController extends Controller
 						->where('api_id_long', $match->api_match_id)
 						->first();
 
-		// if($matchState->state == 'resolved')
-		// {
-		// 	throw new \Dingo\Api\Exception\ResourceException('Match has already resolved.', $validator->errors());
-		// }
+		if($matchState->state == 'resolved')
+		{
+			throw new \Dingo\Api\Exception\ResourceException('Match has already resolved.', $validator->errors());
+		}
 
 		$gameStart = DB::table('schedule')->select('scheduled_time')
 						->where('api_match_id', $match->api_match_id)
@@ -110,8 +103,8 @@ class BetsController extends Controller
 						->unique('game_name')
 						->keyBy('game_name');
 
-		// $mytime = Carbon::now();
-		$mytime = Carbon::create(2016, 10, 8, 19, 00, 0);
+		$mytime = Carbon::now();
+		// $mytime = Carbon::create(2016, 10, 8, 19, 00, 0);
 
 		if ($gameName == 'G1')
 		{
