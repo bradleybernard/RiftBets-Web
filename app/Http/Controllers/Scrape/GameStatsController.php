@@ -116,6 +116,8 @@ class GameStatsController extends ScrapeController
 		    DB::table('game_team_stats')->insert($teamStats);
 		    DB::table('game_player_stats')->insert($playerStats);
 		}
+
+		$this->fixApiIds();
 	}
 
 
@@ -140,6 +142,11 @@ class GameStatsController extends ScrapeController
 						->get()
 						->first();
 
+			if(!$game)
+			{
+				continue;
+			}
+
 			$game = substr($game->summoner_name, 0, 3);
 
 			$name_one = DB::table('rosters')->select('rosters.name as team_name')
@@ -154,10 +161,13 @@ class GameStatsController extends ScrapeController
 
 			if($game == $name_one->team_name)
 			{
-				
+				continue;		
 			} else
 			{
-				dd($match);
+				DB::table('matches')->where('api_id_long', $match->api_id_long)->update([
+					'api_resource_id_one'	=> $match->api_resource_id_two,
+					'api_resource_id_two'	=> $match->api_resource_id_one
+				]);
 			}
 		}
 	}
