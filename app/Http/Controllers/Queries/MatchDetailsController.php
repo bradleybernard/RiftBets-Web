@@ -389,7 +389,7 @@ class MatchDetailsController extends Controller
                 else
                 {
                     $nextGame = collect([
-                        'game_name'         => $lastGame,
+                        'game_name'         => 'G' .(1 + substr($lastGame, 1, 1)),
                         'bettable_until'    => $gameStart->toDateTimeString(),
                     ]);
                 }
@@ -399,7 +399,7 @@ class MatchDetailsController extends Controller
 
         if($isRoute)
         {
-            return $this->response->array($nextGame->first());
+            return $this->response->array($nextGame);
         }
         else
         {
