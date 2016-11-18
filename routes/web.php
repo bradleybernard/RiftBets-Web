@@ -32,4 +32,6 @@ Route::get('answers', 'Schedule\AnswersController@testJob');
 Route::get('bets', 'Schedule\GradingController@bets');
 Route::get('grade', 'Schedule\GradingController@grade');
 
+Route::get('testpush', 'Push\PushNotificationController@test');
+
 Route::get('questions', 'Questions\QuestionsController@insertQuestions');
