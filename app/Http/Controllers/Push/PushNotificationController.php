@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Jobs\PushNotificationsForGradedBets;
 
 use Sly\NotificationPusher\PushManager,
     Sly\NotificationPusher\Adapter\Apns as ApnsAdapter,
@@ -28,7 +29,7 @@ class PushNotificationController extends Controller
         ]);
 
         $devices = new DeviceCollection([
-            new Device(\App\User::where('email', 'bradbernard@me.com')->first()->device_token),
+            new Device(\App\User::where('email', 'scorpiofrend@gmail.com')->first()->device_token),
         ]);
 
         $message = new Message('RiftBets life.');
@@ -36,5 +37,10 @@ class PushNotificationController extends Controller
         $push = new Push($apnsAdapter, $devices, $message);
         $pushManager->add($push);
         $pushManager->push();
+    }
+
+    public function test()
+    {
+        dispatch(new PushNotificationsForGradedBets());
     }
 }

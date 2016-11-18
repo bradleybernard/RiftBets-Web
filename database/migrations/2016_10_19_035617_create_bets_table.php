@@ -21,6 +21,7 @@ class CreateBetsTable extends Migration
             $table->integer('credits_placed')->unsigned();
             $table->integer('credits_won')->default(0);
             $table->boolean('is_complete')->default(False);
+            $table->boolean('is_pushed')->default(False);
             $table->integer('details_placed');
             $table->boolean('won')->default(False);
             $table->boolean('is_counted')->default(False);
