@@ -19,7 +19,7 @@ $api->version('v1', function ($api)
 
     $api->get('schedule', 'App\Http\Controllers\Queries\ScheduleController@query');
     $api->get('match', 'App\Http\Controllers\Queries\MatchDetailsController@query');
-    $api->get('matchbetstatus', 'App\Http\Controllers\Queries\MatchDetailsController@isMatchBettable');
+    $api->get('match/bettable', 'App\Http\Controllers\Queries\MatchDetailsController@bettable');
 
     $api->get('leaderboards', 'App\Http\Controllers\Leaderboards\LeaderboardsController@leaderboards');
     $api->get('leaderboards/rank', 'App\Http\Controllers\Leaderboards\LeaderboardsController@rank');

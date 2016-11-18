@@ -31,7 +31,7 @@ class MatchDetailsController extends Controller
     			->where('matches.api_id_long', $matchId)
     			->get();
 
-        $bettable = $this->isMatchBettable($request, false);
+        $bettable = $this->bettable($request, false);
 
         $rows->transform(function ($item, $key) use ($bettable) {
             $item->bettable_game = $bettable;
@@ -63,7 +63,7 @@ class MatchDetailsController extends Controller
             return $item;
         });
 
-    	$columns = ['games.name as game_name', 'games.game_id', 'games.generated_name', 'game_team_stats.team_id',
+    	$columns = ['games.name as game_name', 'games.game_id', 'games.api_id_long', 'games.generated_name', 'game_team_stats.team_id',
     				'game_team_stats.win', 'game_team_stats.first_blood', 'game_team_stats.first_inhibitor',
     				'game_team_stats.first_baron', 'game_team_stats.first_dragon', 'game_team_stats.first_rift_herald',
     				'game_team_stats.tower_kills', 'game_team_stats.inhibitor_kills', 'game_team_stats.baron_kills',
@@ -76,6 +76,12 @@ class MatchDetailsController extends Controller
     			->join('game_team_stats', 'game_team_stats.game_id', '=', 'games.game_id')
     			->get();
 
+        $gameVideos = DB::table('game_videos')->join('games', 'games.api_id_long', '=', 'game_videos.api_game_id')
+                    ->select(['game_videos.*', 'games.name'])
+                    ->whereIn('game_videos.api_game_id', $games->pluck('api_id_long'))->get();
+
+        $gameVideos = collect($gameVideos)->groupBy('name');
+        
     	$games = $games->filter(function ($value, $key) {
 			return $value->game_id !== null;
 		});
@@ -132,14 +138,11 @@ class MatchDetailsController extends Controller
                 foreach ($itemSlot as $value) 
                 {
                     $items->push($player->{$value});
-
                 }
             }
         }
 
-        $items = $items->unique();
-
-        $items = $items->reject(function ($value, $key) {
+        $items = $items->unique()->reject(function ($value, $key) {
             return $value == null;
         });
 
@@ -278,12 +281,11 @@ class MatchDetailsController extends Controller
 
         foreach($allGames as $gameKey => $property) {
 
-            if(!$team1->get($gameKey)) 
-            {
-                    continue;
+            if(!$team1->get($gameKey)) {
+                continue;
             }
             
-            $rows->transform(function ($item, $key) use ($team1, $team2, $gameKey, $property) {                
+            $rows->transform(function ($item, $key) use ($team1, $team2, $gameKey, $property, $gameVideos) {   
                 $game_name = $team1->get($gameKey)->game_name;
                 $game_id = $team1->get($gameKey)->game_id;
                 $generated_name = $team1->get($gameKey)->generated_name;
@@ -296,6 +298,7 @@ class MatchDetailsController extends Controller
                 unset($team2[$gameKey]->generated_name);
 
                 $item->{$property} = [
+                    'videos'            => $gameVideos->get($gameKey),
                     'game_name'         => $game_name,
                     'game_id'           => $game_id,
                     'generated_name'    => $generated_name,
@@ -310,7 +313,7 @@ class MatchDetailsController extends Controller
         return $this->response->array((array)$rows->first());
     }
 
-    public function isMatchBettable(Request $request, $isRoute = true)
+    public function bettable(Request $request, $isRoute = true)
     {
         $matchId = $request['match_id'];
 
@@ -394,15 +397,16 @@ class MatchDetailsController extends Controller
                     ]);
                 }
             }
-            
         }
 
-        if($isRoute)
-        {
-            return $this->response->array($nextGame);
-        }
-        else
-        {
+        $response = [
+            'bettable'      => $nextGame,
+            'is_bettable'   => ($nextGame !== null)
+        ];
+
+        if($isRoute) {
+            return $this->response->array($response);
+        } else {
             return $nextGame;
         }
     }
