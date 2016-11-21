@@ -1,4 +1,4 @@
-# RiftBets-Web ![Build Status](https://travis-ci.com/bradbernard/RiftBets-Web.svg?token=vRwpWWwPmX6jqztpXACx&branch=master)](https://travis-ci.com/bradbernard/RiftBets-Web)
+# RiftBets-Web [![Build Status](https://travis-ci.com/bradbernard/RiftBets-Web.svg?token=vRwpWWwPmX6jqztpXACx&branch=master)](https://travis-ci.com/bradbernard/RiftBets-Web)
 
 ## RiftBets
 ### Team Members:
