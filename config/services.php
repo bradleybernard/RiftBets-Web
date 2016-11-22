@@ -35,4 +35,9 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'push_ios' => [
+        'passphrase'    => env('IOS_PASSPHRASE'),
+        'certificate'   => base_path() . env('IOS_CERTIFICATE'),
+    ]
+
 ];

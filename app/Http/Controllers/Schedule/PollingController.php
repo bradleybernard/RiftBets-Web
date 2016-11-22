@@ -64,6 +64,8 @@ class PollingController extends ScrapeController
                 }
 
                 $gameMappings = [];
+                $gameVideos = [];
+
                 $gameRealm = $this->findGameRealm($league, $match->api_tournament_id);
                 $response = json_decode((string)$response->getBody());
 
@@ -82,8 +84,21 @@ class PollingController extends ScrapeController
                     continue;
                 }
 
+                foreach($response->videos as $video) {
+                    $gameVideos[] = [
+                        'api_id'            => $video->id,
+                        'api_game_id'       => $video->game,
+                        'locale'            => $video->locale,
+                        'source'            => $video->source,
+                        'api_created_at'    => (new \Carbon\Carbon($video->createdAt)),
+                        'created_at'        => \Carbon\Carbon::now(),
+                    ];
+                }
+
                 Log::info("New unique game mappings found!");
                 Log::info($games);
+
+                DB::table('game_videos')->insert($gameVideos);
 
                 $this->updateGameAndMatchRows($league, $games);
 

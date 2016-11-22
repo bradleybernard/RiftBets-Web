@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Schedule;
 
 use Illuminate\Http\Request;
 use App\Jobs\UpdateLeaderboards;
+use App\Jobs\PushNotificationsForGradedBets;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -65,6 +66,7 @@ class GradingController extends Controller
 		]);
 
 		dispatch(new UpdateLeaderboards());
+		dispatch(new PushNotificationsForGradedBets());
 	}
 
 	public function resetWeekly()

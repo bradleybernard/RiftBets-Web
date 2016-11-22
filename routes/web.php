@@ -14,6 +14,8 @@ Route::get('token', function() {
     return JWTAuth::fromUser(App\User::find(1));
 });
 
+Route::get('push', 'Push\PushNotificationController@push');
+
 Route::get('setup', 'Leaderboards\LeaderboardsController@setup');
 Route::get('populate', 'Leaderboards\LeaderboardsController@populate');
 Route::get('leaderboard', 'Leaderboards\LeaderboardsController@leaderboard');
@@ -29,6 +31,8 @@ Route::get('poll', 'Schedule\PollingController@poll');
 Route::get('answers', 'Schedule\AnswersController@testJob');
 Route::get('bets', 'Schedule\GradingController@bets');
 Route::get('grade', 'Schedule\GradingController@grade');
+
+Route::get('testpush', 'Push\PushNotificationController@test');
 
 Route::get('questions', 'Questions\QuestionsController@insertQuestions');
 

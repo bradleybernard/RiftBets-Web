@@ -29,10 +29,11 @@ class FacebookController extends Controller
 
         if(!$user = User::where('facebook_id', $userNode->getId())->first()) {
             $user = User::create([
-                'facebook_id' => $userNode->getId(),
-                'name'        => $userNode->getName(),
-                'email'       => $userNode->getEmail(),
-                'credits'      => 0
+                'facebook_id'   => $userNode->getId(),
+                'name'          => $userNode->getName(),
+                'email'         => $userNode->getEmail(),
+                'credits'       => 0,
+                'device_token'  => $request->get('device_token'),
             ]);
 
             DB::table('user_stats')->insert([
