@@ -243,7 +243,7 @@ class LeaderboardsController extends Controller
         return $this->response->array($response);
     }
 
-    private function userRank($board, $userId)
+    public function userRank($board, $userId)
     {
         $score = $this->redis->ZSCORE(self::PREFIX . $board, $userId);
         $member = $this->redis->ZREVRANGEBYSCORE(self::PREFIX . $board, $score, $score, 'LIMIT', 0, 1);

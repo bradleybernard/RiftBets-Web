@@ -11,26 +11,18 @@ use DB;
 
 class UserProfileController extends Controller
 {
-    public function query(Request $request)
-    {
+	public function query(Request $request)
+	{
 
-    	//Games -> bets -> bet details
-    	//Order by most recent bets
-
-    	// dd($request->user_id);
-
-    	$user = DB::table('users')
-    			->where('id', '=', $request->user_id)
-    			->get()[0];
-
-		// dd($user);
+		$user = DB::table('users')
+				->where('id', '=', $request->user_id)
+				->get()[0];
 
 		$bets = DB::table('bets')
 				->where('bets.user_id', '=', $user->id)
 				->get();
-		$bets = $bets->keyBy('api_game_id');
 
-		// dd($bets);
+		$bets = $bets->keyBy('api_game_id');
 
 		$details = DB::table('bet_details')
 				->join('questions', 'questions.id', '=', 'bet_details.question_id')
@@ -39,15 +31,11 @@ class UserProfileController extends Controller
 				->get();
 		$details = $details->groupBy('bet_id');
 
-		// dd($details);
-
 		$bets->transform(function ($item, $key) use($details)
 		{
 			$item->details = $details[$item->id];
 			return $item;
 		});
-
-		// dd($bets);
 
 		$games = DB::table('games')
 				->whereIn('api_id_long', $bets->pluck('api_game_id'))
@@ -59,18 +47,17 @@ class UserProfileController extends Controller
 			return $item;
 		});
 
-		// dd($games);
+		$controller = new \App\Http\Controllers\Leaderboards\LeaderboardsController;
 
-		// dd($details);
+		$stats = DB::table('leaderboards')->select('stat')
+				->get();
 
-		//  DB::table('users')
-			// ->select($select)
-			// ->join('bets', 'bets.user_id', '=', 'users.id')
-			// ->join('bet_details', 'bet_details.bet_id', '=', 'bets.id')
-			// ->join('questions', 'questions.id', '=', 'bet_details.question_id')
-			// ->join('question_answers', 'question_answers.question_id', '=', 'bet_details.question_id')
-			// ->where('users.id', $user->id)
-			// ->get();
+		$leaderboards = [];
+		$stats = $stats->pluck('stat');
+
+		foreach ($stats as $stat) {
+			$leaderboards[$stat] = $controller->userRank($stat, $user->id);
+		}
 
 		$userStats = DB::table('user_stats')
 			->where('id', '=', $user->id)
@@ -83,8 +70,8 @@ class UserProfileController extends Controller
 			'created_at'	=> $user->created_at
 		];
 
-		$profile = array('user_info' => $userInfo, 'user_stats' => $userStats, 'games' => $games);
+		$profile = array('user_info' => $userInfo, 'user_stats' => $userStats, 'leaderboard_stats' => $leaderboards, 'games' => $games);
 		
 		return $this->response->array($profile);
-    }
+	}
 }
