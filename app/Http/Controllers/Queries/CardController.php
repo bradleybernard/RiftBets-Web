@@ -27,7 +27,7 @@ class CardController extends Controller
 
     	/* Need to add Validation */
     		
-    	$questions = DB::table('questions')->select(['id as question_id', 'difficulty', 'type', 'description'])
+    	$questions = DB::table('questions')->select(['id as question_id', 'slug', 'difficulty', 'type', 'description'])
     					->get();
 
     	$defaultQuestion = $questions->get('1');
