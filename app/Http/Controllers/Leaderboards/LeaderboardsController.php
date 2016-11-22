@@ -21,7 +21,7 @@ class LeaderboardsController extends Controller
         $this->redis = Redis::connection();
     }
 
-    public function setup()
+    public function setupTable()
     {
         $now = \Carbon\Carbon::now();
 
@@ -81,6 +81,7 @@ class LeaderboardsController extends Controller
             $row['updated_at'] = $now;
         }
 
+        DB::table('leaderboards')->truncate();
         DB::table('leaderboards')->insert($rows);
     }
 
@@ -242,7 +243,7 @@ class LeaderboardsController extends Controller
         return $this->response->array($response);
     }
 
-    private function userRank($board, $userId)
+    public function userRank($board, $userId)
     {
         $score = $this->redis->ZSCORE(self::PREFIX . $board, $userId);
         $member = $this->redis->ZREVRANGEBYSCORE(self::PREFIX . $board, $score, $score, 'LIMIT', 0, 1);

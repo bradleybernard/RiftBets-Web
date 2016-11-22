@@ -35,3 +35,5 @@ Route::get('grade', 'Schedule\GradingController@grade');
 Route::get('testpush', 'Push\PushNotificationController@test');
 
 Route::get('questions', 'Questions\QuestionsController@insertQuestions');
+
+Route::get('profile', 'Queries\UserProfileController@query');

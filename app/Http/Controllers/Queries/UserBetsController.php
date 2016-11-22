@@ -12,7 +12,6 @@ class UserBetsController extends Controller
 {
 	public function query()
 	{
-		// User token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6XC9cL3JpZnRiZXRzLmRldlwvYXBpXC9hdXRoXC9mYWNlYm9vayIsImlhdCI6MTQ3NzYyODk2MSwiZXhwIjoxNDc3NjMyNTYxLCJuYmYiOjE0Nzc2Mjg5NjEsImp0aSI6ImEzZTIwNzIzMDBiNGZhMDc4ZjIzMjE5NDBmMzUxZTFmIn0.G2IR96gw_Oem6GfFIF7KNgSiZKD4sdxLXUcr4WYbF5k
 		$user = $this->auth->user();
 
 		$select = [
