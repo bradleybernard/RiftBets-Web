@@ -21,7 +21,7 @@ class LeaderboardsController extends Controller
         $this->redis = Redis::connection();
     }
 
-    public function setup()
+    public function setupTable()
     {
         $now = \Carbon\Carbon::now();
 
@@ -81,6 +81,7 @@ class LeaderboardsController extends Controller
             $row['updated_at'] = $now;
         }
 
+        DB::table('leaderboards')->truncate();
         DB::table('leaderboards')->insert($rows);
     }
 

@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\ScrapeLoLEsports::class,
         Commands\ScrapeDDragon::class,
         Commands\LeaderboardFlush::class,
+        Commands\LeaderboardsSetup::class,
     ];
 
     /**
