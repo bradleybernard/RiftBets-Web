@@ -22,14 +22,15 @@ class PushNotificationForMatches implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
+    protected $game;
+
+    public function __construct($game)
+    {
+        // $this->game = $game;
+    }
+
     public function handle()
     {
-        $columns = ['user_match_subscriptions.api_match_id','users.name', 'users.device_token'];
-
+        
     }
 }
