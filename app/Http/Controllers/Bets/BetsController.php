@@ -16,18 +16,17 @@ class BetsController extends Controller
 
 	public function bet(Request $request)
 	{
-		//Checking for:
-		//All game ids are same
-		//Enough credits are placed/in account and are positive
-		//Answer is filled out
-		//Question exists
-		//Match exists
-		//Previous game has already resolved
-		//Match isn't resolved already
-		//Game is within allowed time slot and not already in progress (15 mins after previous game for > G1)
-
 		$request->merge(['user_credits' => $this->auth->user()->credits]);
 
+		$count = DB::table('bets')
+				->where('user_id', $this->auth->user()->id)
+				->where('api_game_id', $request['bets'][0]['api_game_id'])
+				->get();
+
+		if($count != null)
+		{
+			throw new \Dingo\Api\Exception\ResourceException('User has already bet on game');
+		}
 
 		$gameId = $request['bets'][0]['api_game_id'];
 

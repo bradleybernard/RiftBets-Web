@@ -31,3 +31,5 @@ Route::get('bets', 'Schedule\GradingController@bets');
 Route::get('grade', 'Schedule\GradingController@grade');
 
 Route::get('questions', 'Questions\QuestionsController@insertQuestions');
+
+Route::get('profile', 'Queries\UserProfileController@query');
