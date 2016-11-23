@@ -94,9 +94,9 @@ class CardController extends Controller
                 ->delete();
         }
     		
-    	$questions = $this->generateQuestions($request);
 
     	$card = (object) [];
+        $questions = $this->generateQuestions($request, $card);
     	$card->user_id = $this->auth->user()->id;
         $card->reroll_count = $numberRerolls;
     	$card->questions = $questions;
@@ -129,15 +129,14 @@ class CardController extends Controller
     		]);
     	}
 
-
     	return $this->response->array((array)$card);
-
     }
 
-    private function generateQuestions($request)
+    private function generateQuestions($request, &$card)
     {
-    	$questions = DB::table('questions')->select(['id as question_id', 'slug', 'difficulty','multiplier', 'type', 'description'])
-    					->get();
+    	$questions = DB::table('questions')->select(['id as question_id', 'slug', 'difficulty','multiplier', 'type', 'description'])->get();
+
+        // dd($questions->unique('type')->pluck('type'));
 
     	$defaultQuestion = $questions->get('1');
 
@@ -150,8 +149,73 @@ class CardController extends Controller
 
     	$questions = $questions->random($request->input('question_count'));
 
+        $match = DB::table('games')->select('matches.*')->join('matches', 'matches.api_id_long', '=', 'games.api_match_id')
+                ->where('games.api_id_long', $request['api_game_id'])
+                ->get();
+
+        $resources = $match->pluck('api_resource_id_one')->push($match->pluck('api_resource_id_two')->first());
+
+        $teams = DB::table('rosters')
+            ->join('teams', 'rosters.api_team_id', '=', 'teams.api_id')
+            ->whereIn('rosters.api_id_long', $resources->all())
+            ->get()
+            ->keyBy('api_id_long');
+
+        $players = DB::table('players')->join('team_players', 'team_players.api_player_id', '=', 'players.api_id')
+                    ->where('team_players.is_starter', true)
+                    ->whereIn('team_players.api_team_id', $teams->pluck('api_id'))
+                    ->get()
+                    ->groupBy('api_team_id');
+
+        $players->transform(function ($value, $index) {
+            $value = $value->keyBy('role_slug');
+            return $value;
+        });
+
     	$questions->prepend($defaultQuestion);
 
+        $teamOne = $teams->get($match->pluck('api_resource_id_one')->first());
+        $teamTwo = $teams->get($match->pluck('api_resource_id_two')->first());
+
+        $replaces = [
+            '%team_one%'                => $teamOne->acronym,
+            '%team_two%'                => $teamTwo->acronym,
+            '%team_one_top_player%'     => $this->formatPlayer($teamOne, $players->get($teamOne->api_team_id)->get('toplane')),
+            '%team_two_top_player%'     => $this->formatPlayer($teamTwo, $players->get($teamTwo->api_team_id)->get('toplane')),
+            '%team_one_jungle_player%'  => $this->formatPlayer($teamOne, $players->get($teamOne->api_team_id)->get('jungle')),
+            '%team_two_jungle_player%'  => $this->formatPlayer($teamTwo, $players->get($teamTwo->api_team_id)->get('jungle')),
+            '%team_one_mid_player%'     => $this->formatPlayer($teamOne, $players->get($teamOne->api_team_id)->get('midlane')),
+            '%team_two_mid_player%'     => $this->formatPlayer($teamTwo, $players->get($teamTwo->api_team_id)->get('midlane')),
+            '%team_one_adc_player%'     => $this->formatPlayer($teamOne, $players->get($teamOne->api_team_id)->get('adcarry')),
+            '%team_two_adc_player%'     => $this->formatPlayer($teamTwo, $players->get($teamTwo->api_team_id)->get('adcarry')),
+            '%team_one_support_player%' => $this->formatPlayer($teamOne, $players->get($teamOne->api_team_id)->get('support')),
+            '%team_two_support_player%'  => $this->formatPlayer($teamTwo, $players->get($teamTwo->api_team_id)->get('support')),
+        ];
+
+
+        $questions->transform(function ($value, $index) use ($replaces) {
+            foreach($replaces as $replaceK => $replaceV) {
+                $value->description = str_replace($replaceK , $replaceV, $value->description);
+            }
+            return $value;
+        });
+
+        $teams->transform(function ($value, $index)  use ($match) {
+            if($value->api_id_long == $match->pluck('api_resource_id_one')->first()) {
+                $value->match_team_id = 100;
+            } else if($value->api_id_long == $match->pluck('api_resource_id_two')->first()) {
+                $value->match_team_id = 200;
+            }
+            return $value;
+        });
+
+        $card->teams = $teams->keyBy('match_team_id');
+
     	return $questions->toArray();
+    }
+
+    private function formatPlayer($team, $player) 
+    {
+        return $team->acronym . ' ' . $player->name;
     }
 }

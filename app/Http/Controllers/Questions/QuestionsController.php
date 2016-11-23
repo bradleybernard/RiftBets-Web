@@ -219,14 +219,14 @@ class QuestionsController extends Controller
             [
                 'slug'          => 'team_one_champion_bans', 
                 'description'   => 'Which champions will %team_one% ban?',
-                'type'          => 'champion_id_list',
+                'type'          => 'champion_id_list_3',
                 'multiplier'    => 10.0,
                 'difficulty'    => 'hard'
             ],
             [
                 'slug'          => 'team_two_champion_bans', 
                 'description'   => 'Which champions will %team_two% ban?',
-                'type'          => 'champion_id_list',
+                'type'          => 'champion_id_list_3',
                 'multiplier'    => 10.0,
                 'difficulty'    => 'hard'
             ]
@@ -729,14 +729,14 @@ class QuestionsController extends Controller
             [
                 'slug'          => 'team_one_champions',
                 'description'   => 'What champions will %team_one% select?',
-                'type'          => 'champion_id_list',
+                'type'          => 'champion_id_list_5',
                 'multiplier'    => 10.00,
                 'difficulty'    => 'hard',
             ],
             [
                 'slug'          => 'team_two_champions',
                 'description'   => 'What champions will %team_two% select?',
-                'type'          => 'champion_id_list',
+                'type'          => 'champion_id_list_5',
                 'multiplier'    => 10.00,
                 'difficulty'    => 'hard',
             ],
@@ -820,7 +820,7 @@ class QuestionsController extends Controller
             [
                 'slug'          => 'team_two_total_gold',
                 'description'   => 'How much total gold will %team_two% have?',
-                'type'          => 'list',
+                'type'          => 'integer',
                 'multiplier'    => 50.00,
                 'difficulty'    => 'extra_hard',
             ],
