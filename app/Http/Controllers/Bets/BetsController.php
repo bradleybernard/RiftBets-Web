@@ -23,7 +23,7 @@ class BetsController extends Controller
 				->where('api_game_id', $request['bets'][0]['api_game_id'])
 				->get();
 
-		if($count != null)
+		if(!$count)
 		{
 			throw new \Dingo\Api\Exception\ResourceException('User has already bet on game');
 		}
