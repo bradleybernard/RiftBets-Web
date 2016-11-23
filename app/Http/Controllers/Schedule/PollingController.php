@@ -10,6 +10,7 @@ use \GuzzleHttp\Exception\ServerException;
 
 use App\Game;
 use App\Jobs\InsertGameQuestionAnswers;
+use App\Jobs\PushNotificationsForMatches;
 
 use DB;
 use \Carbon\Carbon;
@@ -101,6 +102,12 @@ class PollingController extends ScrapeController
                 DB::table('game_videos')->insert($gameVideos);
 
                 $this->updateGameAndMatchRows($league, $games);
+
+                // $this->pushToSubscribers($games);
+
+                //check resolved to see if match is completed
+                //new function in polling controller sendPushNotificationsToSubscribers
+                //take in $games array then dispatch new job and notify people
 
                 $this->scrapeGamesDetails($games);
                 $this->scrapeGameTimelines($games);
@@ -520,6 +527,14 @@ class PollingController extends ScrapeController
                 'key'       => strtolower(snake_case($key)),
                 'value'     => strtolower($value),
             ]];
+        }
+    }
+
+    public function pushToSubscribers($games)
+    {
+        foreach($games as $game)
+        {
+            // dispatch(new PushNotificationsForMatches($game);
         }
     }
 }
