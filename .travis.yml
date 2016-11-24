@@ -17,7 +17,7 @@ php:
 # sudo: false
 
 before_script:
-  - mkdir bootstrap/cache
+  - mkdir -p bootstrap/cache
   - cp .env.travis .env
   - mysql -e 'create database homestead_test;'
   - composer self-update
