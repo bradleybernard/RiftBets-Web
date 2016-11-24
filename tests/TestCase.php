@@ -7,7 +7,7 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
      *
      * @var string
      */
-    protected $baseUrl = 'http://riftbets.dev/';
+    protected $baseUrl = 'http://localhost:8000/';
 
     /**
      * Creates the application.
@@ -26,7 +26,7 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
             $this->baseUrl = 'http://riftbets.dev/';
         }
 
-        echo $this->baseUrl;
+        // echo $this->baseUrl;
 
         return $app;
     }
