@@ -25,6 +25,7 @@ $api->version('v1', function ($api)
     $api->get('leaderboards', 'App\Http\Controllers\Leaderboards\LeaderboardsController@leaderboards');
     $api->get('leaderboards/rank', 'App\Http\Controllers\Leaderboards\LeaderboardsController@rank');
     $api->get('leaderboards/around', 'App\Http\Controllers\Leaderboards\LeaderboardsController@around');
+    $api->get('profile', 'App\Http\Controllers\Queries\UserProfileController@query');
     
     $api->group(['middleware' => 'api.auth'], function ($api) {
         $api->post('bets/create', 'App\Http\Controllers\Bets\BetsController@bet');

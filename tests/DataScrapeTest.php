@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class DataScrapeTest extends TestCase
 {
-    use DatabaseMigrations;
+    // use DatabaseMigrations;
 
     protected static $dbSeeded = false;
 
@@ -15,6 +15,7 @@ class DataScrapeTest extends TestCase
         $refresh = Artisan::call('migrate:refresh');
         $scrapeDDragon = Artisan::call('scrape:ddragon');
         $scrapeLolesports = Artisan::call('scrape:lolesports');
+        $leaderboards = Artisan::call('leaderboards:setup');
     }
 
     public function setUp()
@@ -39,7 +40,7 @@ class DataScrapeTest extends TestCase
         }
     }
 
-     public function test_match_schedule_outputs_matches_grouped_by_date_test()
+    public function test_match_schedule_outputs_matches_grouped_by_date_test()
     {
         $row = DB::table('schedule')->where('api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')->first();
 
@@ -56,5 +57,75 @@ class DataScrapeTest extends TestCase
                     ]
                  ]
             ]);
+    }
+
+    public function test_match_details_outputs_correctly()
+    {
+        $match = DB::table('matches')->select('api_id_long')->orderBy(DB::raw('RAND()'))->first();
+
+        $this->get('/api/match?match_id=' . $match->api_id_long)
+             ->seeJsonStructure([
+                'api_id_long', 
+                'name', 
+                'state',
+            ]);
+    }
+
+    public function test_leaderboards_output()
+    {
+        $this->createUser();
+        
+        $this->get('api/leaderboards?leaderboard=weekly_wins&start=0&end=99')
+             ->seeJsonStructure([
+                'users',
+                'leaderboard' => [
+                    'stat', 
+                    'timeframe', 
+                    'title', 
+                    'prize'
+                ]
+            ]);
+    }
+
+    public function test_leaderboards_rank_output()
+    {
+        $this->get('api/leaderboards/rank?leaderboard=weekly_wins&user_id=1')
+             ->seeJsonStructure([
+                "user_id",
+                "rank",
+                "leaderboard",
+                "stat",
+            ]);
+    }
+
+    public function test_profile_output()
+    {
+        $this->get('api/profile?user_id=1')
+             ->seeJsonStructure([
+                "user_info",
+                "user_stats",
+                "leaderboard_stats",
+                "games",
+            ]);
+    }
+
+    private function createUser() 
+    {
+        $accessToken = 'EAAKzu2L3NZCIBANqtTkEcqUqsOS0HaQAOOiTJaPSU2MlAV2ZBDSvSZCMpy6qAlUXTDKQK3UxKrFm5tZAmHofK2krZArEZBluCFo3lkZCbH437pi4DZBFFUmcHgZBQSmPPMfXZAkrgmPFOhjxZAYS7ro9ggPFIQKZA8PwoUZCwjI0jP3u9UwZDZD';
+
+        $this->json('POST', '/api/auth/facebook', ['facebook_access_token' => $accessToken])
+             ->seeJsonStructure([
+                'token',
+                'user' => [
+                    'id', 
+                    'facebook_id',
+                    'name', 
+                    'email', 
+                    'credits',
+                    'device_token',
+                    'created_at',
+                    'updated_at',
+                ]
+        ]);
     }
 }
