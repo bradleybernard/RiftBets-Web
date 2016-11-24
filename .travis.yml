@@ -3,25 +3,28 @@ language: php
 php:
   - 7.0
 
-env:
-  global:
-    - setup=basic
-    - APP_ENV=staging
-    - APP_DEBUG=true
-    - APP_KEY=SomeRandomString
-    - DB_CONNECTION=sqlite
-    - CACHE_DRIVER=file
-    - SESSION_DRIVER=file
-    - QUEUE_DRIVER=sync
+# env:
+#   global:
+#     - setup=basic
+#     - APP_ENV=staging
+#     - APP_DEBUG=true
+#     - APP_KEY=SomeRandomString
+#     - DB_CONNECTION=sqlite
+#     - CACHE_DRIVER=file
+#     - SESSION_DRIVER=file
+#     - QUEUE_DRIVER=sync
 
-sudo: false
+# sudo: false
 
-services:
-  - redis-server
+before_script:
+  - cp .env.travis .env
+  - mysql -e 'create database homestead_test;'
+  - composer self-update
+  - composer install --no-interaction
 
-install:
-- if [[ $setup = 'basic' ]]; then travis_retry composer install --no-interaction --prefer-source; fi
-- if [[ $setup = 'stable' ]]; then travis_retry composer update --prefer-source --no-interaction --prefer-stable; fi
-- if [[ $setup = 'lowest' ]]; then travis_retry composer update --prefer-source --no-interaction --prefer-lowest --prefer-stable; fi
+# install:
+# - if [[ $setup = 'basic' ]]; then travis_retry composer install --no-interaction --prefer-source; fi
+# - if [[ $setup = 'stable' ]]; then travis_retry composer update --prefer-source --no-interaction --prefer-stable; fi
+# - if [[ $setup = 'lowest' ]]; then travis_retry composer update --prefer-source --no-interaction --prefer-lowest --prefer-stable; fi
 
 script: vendor/bin/phpunit
