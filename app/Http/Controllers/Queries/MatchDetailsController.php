@@ -76,6 +76,11 @@ class MatchDetailsController extends Controller
     			->join('game_team_stats', 'game_team_stats.game_id', '=', 'games.game_id')
     			->get();
 
+        $gameApis = DB::table('games')->select(['name', 'api_id_long as api_game_id'])
+                        ->where('api_match_id', $matchId)
+                        ->orderBy('name', 'asc')
+                        ->get();
+
         $gameVideos = DB::table('game_videos')->join('games', 'games.api_id_long', '=', 'game_videos.api_game_id')
                     ->select(['game_videos.*', 'games.name'])
                     ->whereIn('game_videos.api_game_id', $games->pluck('api_id_long'))->get();
@@ -92,9 +97,10 @@ class MatchDetailsController extends Controller
         $score1 = $games->where('team_id', 100)->sum('win');
         $score2 = $games->where('team_id', 200)->sum('win');
 
-        $rows->transform(function ($item, $key) use($score1, $score2){
+        $rows->transform(function ($item, $key) use($gameApis, $score1, $score2){
             $item->score_one = $score1;
             $item->score_two = $score2;
+            $item->game_api_ids = $gameApis->toArray();
             return $item;
         });
 

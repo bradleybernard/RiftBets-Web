@@ -1,62 +1,54 @@
 <?php
 
-namespace App\Http\Controllers\Facebook;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Requests;
-
-use DB;
-use App\User;
-use JWTAuth;
-use Log;
-use Redis;
-
-class FacebookController extends Controller
+class NewUserInLeaderboardTest extends TestCase
 {
-    public function facebook(Request $request)
+    use DatabaseMigrations;
+
+    public function test_new_user_in_leaderboard()
     {
-    	$fb = app(\SammyK\LaravelFacebookSdk\LaravelFacebookSdk::class);
-    	$accessToken = $request['facebook_access_token'];
+        $this->resetRedis();
 
-    	try {
-  			$response = $fb->get('/me?fields=id,name,email', $accessToken);
-		} catch(\Facebook\Exceptions\FacebookSDKException $e) {
-            Log::error($e->getMessage());
-  			dd($e->getMessage());
-		}
+        $redis = Redis::connection();
+        $accessToken = 'EAAKzu2L3NZCIBANqtTkEcqUqsOS0HaQAOOiTJaPSU2MlAV2ZBDSvSZCMpy6qAlUXTDKQK3UxKrFm5tZAmHofK2krZArEZBluCFo3lkZCbH437pi4DZBFFUmcHgZBQSmPPMfXZAkrgmPFOhjxZAYS7ro9ggPFIQKZA8PwoUZCwjI0jP3u9UwZDZD';
 
-		$userNode = $response->getGraphUser();
+        $this->json('POST', '/api/auth/facebook', ['facebook_access_token' => $accessToken])
+             ->seeJsonStructure([
+                'token',
+                'user' => [
+                    'id', 
+                    'facebook_id',
+                    'name', 
+                    'email', 
+                    'credits',
+                    'device_token',
+                    'created_at',
+                    'updated_at',
+                ]
+        ]);
 
-        if(!$user = User::where('facebook_id', $userNode->getId())->first()) {
-            $user = User::create([
-                'facebook_id'   => $userNode->getId(),
-                'name'          => $userNode->getName(),
-                'email'         => $userNode->getEmail(),
-                'credits'       => 0,
-                'device_token'  => $request->get('device_token'),
-            ]);
+        $userId = 1;
+        $rank = $redis->ZRANK('lb_weekly_wins', $userId);
 
-            DB::table('user_stats')->insert([
-                'user_id'       => $user->id,
-                'created_at'    => \Carbon\Carbon::now(),
-                'updated_at'    => \Carbon\Carbon::now(),
-            ]);
-        }
+        $this->assertTrue(($rank == 0));
+    }
 
-        $token = JWTAuth::fromUser($user);
+    private function resetRedis()
+    {
+        $deleteStr = '';
 
         $redis = Redis::connection();
         $leaderboards = $this->leaderboards();
 
-        foreach($leaderboards as $leaderboard) {
-            $redis->ZADD($leaderboard['redis_key'], 0, $user->id);
+        foreach($leaderboards as $leaderboard)
+        {
+            $deleteStr .= $leaderboard['redis_key'] . " ";
         }
 
-        return $this->response->array([
-            'token' => $token,
-            'user'  => $user,
-        ]);
+        $redis->DEL(substr($deleteStr, 0, -1));
     }
 
     private function leaderboards()
