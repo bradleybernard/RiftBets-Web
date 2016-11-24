@@ -53,6 +53,7 @@ class CardController extends Controller
             ]);
 
             $numberRerolls = 0;
+            $rerollRemaining = 3;
         }
         elseif ($request->input('reroll', false)) 
         {
@@ -78,6 +79,8 @@ class CardController extends Controller
 
             $numberRerolls = $numberRerolls->reroll_count + 1;
 
+            $rerollRemaining = 3 - $numberRerolls;
+
             $oldCardId = DB::table('cards')->select('id')
                             ->where('user_id', $checkCardExists->user_id)
                             ->where('api_game_id', $checkCardExists->api_game_id)
@@ -99,6 +102,7 @@ class CardController extends Controller
         $questions = $this->generateQuestions($request, $card);
     	$card->user_id = $this->auth->user()->id;
         $card->reroll_count = $numberRerolls;
+        $card->reroll_remaining = $rerollRemaining;
     	$card->questions = $questions;
 
     	$card->champions = DB::table('ddragon_champions')->select(['api_id', 'champion_name', 'image_url'])

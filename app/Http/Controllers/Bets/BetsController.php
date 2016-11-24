@@ -142,7 +142,7 @@ class BetsController extends Controller
 		$betId = DB::table('bets')->insertGetId([
 			'user_id'			=> $this->auth->user()->id,
 			'credits_placed'	=> $request['credits_placed'],
-			'api_game_id'		=> $request['credits_placed'],
+			'api_game_id'		=> $request['bets'][0]['api_game_id'],
 			'details_placed'	=> count($request['bets'])
 		]);
 
@@ -166,9 +166,19 @@ class BetsController extends Controller
 			$details[$i]['credits_placed'] = $request['bets'][$i]['credits_placed'];
 		}
 
-
-
 		DB::table('bet_details')->insert($details);
+
+		$matchId = DB::table('games')->select('api_match_id')
+						->where('api_id_long', $request['bets'][0]['api_game_id'])
+						->get();
+
+		$matchId = $matchId[0]->api_match_id;
+
+		// dd($matchId);
+
+		DB::table('subscribed_users')->insert([
+			'user_id' => $this->auth->user()->id, 'api_match_id' => $matchId
+		]);
 	}
 
 }
