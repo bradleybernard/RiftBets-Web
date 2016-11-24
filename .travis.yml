@@ -3,18 +3,7 @@ language: php
 php:
   - 7.0
 
-# env:
-#   global:
-#     - setup=basic
-#     - APP_ENV=staging
-#     - APP_DEBUG=true
-#     - APP_KEY=SomeRandomString
-#     - DB_CONNECTION=sqlite
-#     - CACHE_DRIVER=file
-#     - SESSION_DRIVER=file
-#     - QUEUE_DRIVER=sync
-
-# sudo: false
+sudo: false
 
 before_script:
   - mkdir -p bootstrap/cache
@@ -23,10 +12,6 @@ before_script:
   - composer self-update
   - composer install --no-interaction
   - php artisan key:generate
-
-# install:
-# - if [[ $setup = 'basic' ]]; then travis_retry composer install --no-interaction --prefer-source; fi
-# - if [[ $setup = 'stable' ]]; then travis_retry composer update --prefer-source --no-interaction --prefer-stable; fi
-# - if [[ $setup = 'lowest' ]]; then travis_retry composer update --prefer-source --no-interaction --prefer-lowest --prefer-stable; fi
+  - php artisan serve
 
 script: vendor/bin/phpunit

@@ -20,6 +20,14 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
 
         $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
+        if ($app->environment('testing')) {
+            $this->baseUrl = 'http://localhost:8000/';
+        } else {
+            $this->baseUrl = 'http://riftbets.dev/';
+        }
+
+        echo $this->baseUrl;
+
         return $app;
     }
 }
