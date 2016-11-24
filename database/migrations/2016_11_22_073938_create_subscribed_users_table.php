@@ -15,11 +15,8 @@ class CreateSubscribedUsersTable extends Migration
     {
         Schema::create('subscribed_users', function (Blueprint $table) {
             $table->increments('id');
-
             $table->integer('user_id');
             $table->string('api_match_id');
-
-            $table->datetime('api_created_at');
             $table->timestamp('created_at');
         });
     }

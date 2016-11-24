@@ -534,7 +534,7 @@ class PollingController extends ScrapeController
     {
         foreach($games as $game)
         {
-            // dispatch(new PushNotificationsForMatches($game);
+            dispatch(new PushNotificationsForMatches($game);
         }
     }
 }
