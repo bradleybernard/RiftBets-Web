@@ -147,7 +147,7 @@ class CardController extends Controller
     		$questions = $questions->where('difficulty', $request->input('difficulty', null));
     	}
 
-    	$questions = $questions->random($request->input('question_count'));
+    	$questions = $questions->random($request->input('question_count'))->push($questions->get('5'));
 
         $match = DB::table('games')->select('matches.*')->join('matches', 'matches.api_id_long', '=', 'games.api_match_id')
                 ->where('games.api_id_long', $request['api_game_id'])
