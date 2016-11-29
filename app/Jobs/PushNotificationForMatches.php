@@ -18,6 +18,7 @@ use Sly\NotificationPusher\PushManager,
 
 use Config;
 
+//dispatches push notifications to users subscribed to a match
 class PushNotificationForMatches implements ShouldQueue
 {
 	use InteractsWithQueue, Queueable, SerializesModels;
