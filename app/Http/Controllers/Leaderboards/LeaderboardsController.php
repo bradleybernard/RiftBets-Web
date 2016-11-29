@@ -16,11 +16,13 @@ class LeaderboardsController extends Controller
     const PREFIX = 'lb_';
     protected $redis;
 
+    // Setup class to include redis connection
     public function __construct()
     {
         $this->redis = Redis::connection();
     }
 
+    // Setup leaderboards table in DB
     public function setupTable()
     {
         $now = \Carbon\Carbon::now();
@@ -85,6 +87,7 @@ class LeaderboardsController extends Controller
         DB::table('leaderboards')->insert($rows);
     }
 
+    // Add all users to leaderboards
     public function populate() 
     {
         $users = range(1, 200);
@@ -102,6 +105,7 @@ class LeaderboardsController extends Controller
         });
     }
 
+    // Get users around another user in the leaderboard
     public function around(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -169,6 +173,7 @@ class LeaderboardsController extends Controller
         return $this->response->array($response);
     }
 
+    // Get a users rank in a leaderboard
     public function rank(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -196,6 +201,7 @@ class LeaderboardsController extends Controller
         return $this->response->array($response);
     }
 
+    // Get a leaderboard by start and end
     public function leaderboards(Request $request)
     {
         $difference = ((int)$request->get('end') - (int)$request->get('start')) + 1;
@@ -243,6 +249,7 @@ class LeaderboardsController extends Controller
         return $this->response->array($response);
     }
 
+    // Get a users rank in a leaderboard with ties
     public function userRank($board, $userId)
     {
         $score = $this->redis->ZSCORE(self::PREFIX . $board, $userId);

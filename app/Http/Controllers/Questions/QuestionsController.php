@@ -7,12 +7,14 @@ use DB;
 
 class QuestionsController extends Controller
 {
+    // Setup database table questions
     public function insertQuestions()
     {
         DB::table('questions')->truncate();
         DB::table('questions')->insert($this->getQuestions()->toArray());
     }
 
+    // For each type of question get the questions corresponding to it
     public function getQuestions()
     {
         $functions = ['gameStats', 'gameTeamStats', 'gamePlayerStats'];
@@ -25,6 +27,7 @@ class QuestionsController extends Controller
         return $questions->flatten(1);
     }
 
+    // Section of questions
     private function gameStats()
     {
         return [
@@ -233,6 +236,7 @@ class QuestionsController extends Controller
         ];
     }
 
+    // Section of questions
     private function gamePlayerStats()
     {
         return [

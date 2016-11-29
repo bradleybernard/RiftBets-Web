@@ -14,6 +14,7 @@ use Redis;
 
 class FacebookController extends Controller
 {
+    // Login/register a user by Facebook
     public function facebook(Request $request)
     {
     	$fb = app(\SammyK\LaravelFacebookSdk\LaravelFacebookSdk::class);
@@ -59,6 +60,7 @@ class FacebookController extends Controller
         ]);
     }
 
+    // Helper to insert user into redis database
     private function leaderboards()
     {
         return [

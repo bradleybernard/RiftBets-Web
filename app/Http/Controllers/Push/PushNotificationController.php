@@ -19,6 +19,7 @@ use Config;
 
 class PushNotificationController extends Controller
 {
+    // Sample push notifications code
     public function push()
     {
         $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
@@ -39,6 +40,7 @@ class PushNotificationController extends Controller
         $pushManager->push();
     }
 
+    // Sample push notifications job
     public function test()
     {
         dispatch(new PushNotificationsForGradedBets());
