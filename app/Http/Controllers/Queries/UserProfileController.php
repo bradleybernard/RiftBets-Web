@@ -10,10 +10,11 @@ use DB;
 
 
 class UserProfileController extends Controller
-{
+{	
+	//returns data required to display a users profile
 	public function query(Request $request)
 	{
-
+		//retrieve user data related to previous bets placed
 		$user = DB::table('users')
 				->where('id', '=', $request->user_id)
 				->get()[0];
@@ -31,6 +32,7 @@ class UserProfileController extends Controller
 				->get();
 		$details = $details->groupBy('bet_id');
 
+		//combine the bets placed with the corresponding games
 		$bets->transform(function ($item, $key) use($details)
 		{
 			$item->details = $details[$item->id];
@@ -47,6 +49,7 @@ class UserProfileController extends Controller
 			return $item;
 		});
 
+		//gather and combine with leaderboard data of the user
 		$controller = new \App\Http\Controllers\Leaderboards\LeaderboardsController;
 
 		$stats = DB::table('leaderboards')->select('stat')

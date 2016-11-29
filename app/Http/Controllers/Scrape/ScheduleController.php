@@ -13,6 +13,7 @@ class ScheduleController extends ScrapeController
 {
     protected $tables = ['schedule'];
 
+    //gather and insert the scheduled matches for the league
     public function scrape()
     {        
         $leagues = DB::table('leagues')->pluck('api_id');

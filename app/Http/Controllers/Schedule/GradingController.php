@@ -13,7 +13,7 @@ use DB;
 
 class GradingController extends Controller
 {
-	// Few queries to grade bets, update user stats, and push jobs to update leaderboards/push notifications
+	// Queries to grade bets, update user stats, and push jobs to update leaderboards/push notifications
 	public function grade()
 	{
 		DB::table('bets')

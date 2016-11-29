@@ -12,6 +12,7 @@ class TimelineController extends ScrapeController
 {
     protected $baseUri = 'https://acs.leagueoflegends.com/';
 
+    //get and insert information of events that occur during each minute of the game (eg triple kill, tower destroyed)
 	public function scrape()
 	{
         $gameRealm = 'TRLH1';
@@ -21,7 +22,7 @@ class TimelineController extends ScrapeController
     	$playerStats = [];
     	$gameEvents = [];
     	$eventDetails = [];
-	            
+
 	    try {
 	    	$response = $this->client->request('GET', 'v1/stats/game/' . $gameRealm . '/' . $gameId . '/timeline?gameHash=' . $gameHash);
 	    } catch (ClientException $e) {
@@ -33,6 +34,7 @@ class TimelineController extends ScrapeController
 	    $response = json_decode((string)$response->getBody());
         $gameEventCounter = 0;
 
+        //gather data of each player during each frame
 	    foreach ($response->frames as $frame) 
 	    {
 	    	foreach ($frame->participantFrames as $player) 
@@ -56,6 +58,7 @@ class TimelineController extends ScrapeController
 	    	
             $skip = ['type', 'timestamp'];
 
+            //get events that occur in each minute
 	    	foreach ($frame->events as $event) 
 	    	{
 	    		$gameEvents[] = [

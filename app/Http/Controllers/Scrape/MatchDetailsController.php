@@ -17,6 +17,7 @@ class MatchDetailsController extends ScrapeController
 
         $matches = DB::table('matches')->select('api_id_long as match_id')->get();
 
+        //attempt to gather and insert data of each match
         foreach ($matches as $match) {
 
             $gameMappings = [];
@@ -32,6 +33,7 @@ class MatchDetailsController extends ScrapeController
 
             $response = json_decode((string)$response->getBody());
 
+            //insert data into game-match relational table
             foreach ($response->gameIdMappings as $mapping) 
             {
                 $gameMappings[] = [
@@ -42,6 +44,7 @@ class MatchDetailsController extends ScrapeController
                 ];
             }
 
+            //video urls for each game
             foreach($response->videos as $video) {
                 $gameVideos[] = [
                     'api_id'            => $video->id,

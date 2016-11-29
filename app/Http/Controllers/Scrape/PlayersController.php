@@ -13,6 +13,7 @@ class PlayersController extends ScrapeController
 {
     protected $tables = ['players', 'team_players'];
 
+    //gather and insert data of each player on each team
     public function scrape() 
     {
         $teams = DB::table('rosters')->join('teams', 'rosters.api_team_id', '=', 'teams.api_id')
@@ -34,6 +35,7 @@ class PlayersController extends ScrapeController
 
             $response = json_decode((string) $response->getBody());
 
+            //insert basic player info
             foreach($response->players as $player)
             {
                 $insert['players'][] = [
