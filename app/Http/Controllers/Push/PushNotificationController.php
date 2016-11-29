@@ -30,10 +30,10 @@ class PushNotificationController extends Controller
         ]);
 
         $devices = new DeviceCollection([
-            new Device(\App\User::where('email', 'scorpiofrend@gmail.com')->first()->device_token),
+            new Device(\App\User::find(1)->device_token),
         ]);
 
-        $message = new Message('RiftBets life.');
+        $message = new Message('Brad, SKT has defeated SSG 3-2 in a best of 5! You answered 3 out of 5 questions correctly and won 2584 credits!');
 
         $push = new Push($apnsAdapter, $devices, $message);
         $pushManager->add($push);
@@ -46,3 +46,4 @@ class PushNotificationController extends Controller
         dispatch(new PushNotificationsForGradedBets());
     }
 }
+
