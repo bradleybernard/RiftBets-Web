@@ -18,11 +18,15 @@ class AnswersController extends Controller
     protected   $gameTeamStats;
     protected   $gamePlayerStats;
 
+    // First test insert answers for a game
     public function testJob()
     {
         dispatch(new InsertGameQuestionAnswers(Game::where('game_id', '1001890201')->first()));
     }
 
+    // Select all questions and then assign data for the game into private properties
+    // then call each method corresponding to the question row method name and collect those
+    // and insert the answers.
     public function insertAnswers()
     {
         $answers = [];

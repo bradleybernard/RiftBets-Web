@@ -13,6 +13,7 @@ use DB;
 
 class GradingController extends Controller
 {
+	// Few queries to grade bets, update user stats, and push jobs to update leaderboards/push notifications
 	public function grade()
 	{
 		DB::table('bets')
@@ -69,6 +70,7 @@ class GradingController extends Controller
 		dispatch(new PushNotificationsForGradedBets());
 	}
 
+	// Reset weekly user stats
 	public function resetWeekly()
 	{
 		DB::table('user_stats')->update([
@@ -77,6 +79,7 @@ class GradingController extends Controller
 		]);
 	}
 
+	// Reset monthly user stats
 	public function resetMonthly()
 	{
 		DB::table('user_stats')->update([
@@ -85,6 +88,7 @@ class GradingController extends Controller
 		]);
 	}
 
+	// Test function to insert bets based on a game (didn't have iphone setup yet)
 	public function bets()
 	{
 		// game 1: rox vs skt

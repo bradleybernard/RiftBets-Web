@@ -10,6 +10,7 @@ class DataScrapeTest extends TestCase
 
     protected static $dbSeeded = false;
 
+    // Setup database seed by scraping
     protected static function initDB()
     {
         $refresh = Artisan::call('migrate:refresh');
@@ -18,6 +19,7 @@ class DataScrapeTest extends TestCase
         $leaderboards = Artisan::call('leaderboards:setup');
     }
 
+    // Calls method once when test class created
     public function setUp()
     {
         parent::setUp();
@@ -28,6 +30,7 @@ class DataScrapeTest extends TestCase
         }
     }
 
+    // Go thru all tables and check each has at least one row
     public function test_all_tables_have_data()
     {
         $tables = ['tournaments', 'teams', 'players', 'team_players', 'schedule', 'rosters','matches', 'leagues', 'games', 
@@ -40,6 +43,7 @@ class DataScrapeTest extends TestCase
         }
     }
 
+    // Select random datetime and chop off time part and hit the API and see if it appears
     public function test_match_schedule_outputs_matches_grouped_by_date_test()
     {
         $row = DB::table('schedule')->where('api_tournament_id', '3c5fa267-237e-4b16-8e86-20378a47bf1c')->first();
@@ -59,6 +63,7 @@ class DataScrapeTest extends TestCase
             ]);
     }
 
+    // Select random match and query the details of it and check it works
     public function test_match_details_outputs_correctly()
     {
         $match = DB::table('matches')->select('api_id_long')->orderBy(DB::raw('RAND()'))->first();
@@ -71,6 +76,7 @@ class DataScrapeTest extends TestCase
             ]);
     }
 
+    // Create a random user and see if it exists in the leaderboards board
     public function test_leaderboards_output()
     {
         $this->createUser();
@@ -87,6 +93,7 @@ class DataScrapeTest extends TestCase
             ]);
     }
 
+    // Make sure user has a rank in a random leaderboard
     public function test_leaderboards_rank_output()
     {
         $this->get('api/leaderboards/rank?leaderboard=weekly_wins&user_id=1')
@@ -98,6 +105,7 @@ class DataScrapeTest extends TestCase
             ]);
     }
 
+    // Make sure this new user has a profile
     public function test_profile_output()
     {
         $this->get('api/profile?user_id=1')
@@ -109,6 +117,7 @@ class DataScrapeTest extends TestCase
             ]);
     }
 
+    // Helper function to create a new user
     private function createUser() 
     {
         $accessToken = 'EAAKzu2L3NZCIBANqtTkEcqUqsOS0HaQAOOiTJaPSU2MlAV2ZBDSvSZCMpy6qAlUXTDKQK3UxKrFm5tZAmHofK2krZArEZBluCFo3lkZCbH437pi4DZBFFUmcHgZBQSmPPMfXZAkrgmPFOhjxZAYS7ro9ggPFIQKZA8PwoUZCwjI0jP3u9UwZDZD';

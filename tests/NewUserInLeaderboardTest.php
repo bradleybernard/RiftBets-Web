@@ -8,6 +8,7 @@ class NewUserInLeaderboardTest extends TestCase
 {
     use DatabaseMigrations;
 
+    // Make sure new user is in fact in the leaderboard after creation
     public function test_new_user_in_leaderboard()
     {
         $this->resetRedis();
@@ -36,6 +37,7 @@ class NewUserInLeaderboardTest extends TestCase
         $this->assertTrue(($rank == 0));
     }
 
+    // Helper to reset redis database (flushall keys)
     private function resetRedis()
     {
         $deleteStr = '';
@@ -51,6 +53,7 @@ class NewUserInLeaderboardTest extends TestCase
         $redis->DEL(substr($deleteStr, 0, -1));
     }
 
+    // Return array of leaderboards (usually in DB but don't want to test DB for this)
     private function leaderboards()
     {
         return [

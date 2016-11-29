@@ -8,6 +8,7 @@ class NewUserOutputsJWTTest extends TestCase
 {
     use DatabaseMigrations;
     
+    // Make sure user can generate a JWT token for API auth after creation
     public function test_new_user_outputs_jwt()
     {
         $accessToken = 'EAAKzu2L3NZCIBANqtTkEcqUqsOS0HaQAOOiTJaPSU2MlAV2ZBDSvSZCMpy6qAlUXTDKQK3UxKrFm5tZAmHofK2krZArEZBluCFo3lkZCbH437pi4DZBFFUmcHgZBQSmPPMfXZAkrgmPFOhjxZAYS7ro9ggPFIQKZA8PwoUZCwjI0jP3u9UwZDZD';

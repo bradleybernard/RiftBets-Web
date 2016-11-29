@@ -18,6 +18,7 @@ use Log;
 
 class PollingController extends ScrapeController
 {
+    // Function called every minute to get new data from Riot Games API
     public function poll()
     {
         Log::info("Poll getting called");
@@ -117,6 +118,7 @@ class PollingController extends ScrapeController
         }
     }
 
+    // When a new game is complete update the existing match and game rows
     protected function updateGameAndMatchRows($league, $games)
     {
         $games = collect($games);
@@ -192,6 +194,7 @@ class PollingController extends ScrapeController
         });
     }
 
+    // Get game timeline for completed games
     protected function scrapeGameTimelines($games)
     {
         $playerStats = [];
@@ -266,6 +269,7 @@ class PollingController extends ScrapeController
         DB::table('game_event_details')->insert($eventDetails);
     }
 
+    // Get game details for completed games
     protected function scrapeGamesDetails($games)
     {
         $gameStats = [];
@@ -361,6 +365,7 @@ class PollingController extends ScrapeController
         DB::table('game_player_stats')->insert($playerStats);
     }
 
+    // Dispatch job to insert game answers for each game that is done
     protected function queueGamesAnswers($games)
     {
         foreach($games as $game) {
@@ -372,6 +377,7 @@ class PollingController extends ScrapeController
         }
     }
 
+    // Helper function to fill a match since have to do it multiple times
     private function fillMatch($league, $bracket, $match)
     {
          $record = [
@@ -409,6 +415,7 @@ class PollingController extends ScrapeController
         return $record;
     }
 
+    // Helper function to find game_id in the JSON
     private function findGameId($league, $gameApiId)
     {
         foreach($league->highlanderTournaments as $tournament) {
@@ -424,6 +431,7 @@ class PollingController extends ScrapeController
         }
     }
 
+    // Helper function fo find game_realm in the JSON
     private function findGameRealm($league, $tournamentId)
     {
         foreach($league->highlanderTournaments as $tournament) {
@@ -442,16 +450,19 @@ class PollingController extends ScrapeController
         }
     }
 
+    // Helper function to clean the database up, 0 == null in this case
     private function cleanItem($itemId) 
     {
         return ($itemId == 0 ? null : $itemId);
     }
 
+    // Helper function to clean the database, changing to bool based on string
     private function parseWin($win)
     {
         return ($win == 'Fail' ? false : true);
     }
 
+    // Insert all game mappings rows for each game completed and return them
     private function insertUniqueGameMappings($collection, $realm) 
     {
         $collection = collect($collection);
@@ -530,11 +541,12 @@ class PollingController extends ScrapeController
         }
     }
 
+    // Dispatch job to send push notifications to users subscribed to a game
     public function pushToSubscribers($games)
     {
         foreach($games as $game)
         {
-            dispatch(new PushNotificationsForMatches($game);
+            dispatch(new PushNotificationsForMatches($game));
         }
     }
 }
