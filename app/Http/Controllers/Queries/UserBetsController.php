@@ -9,7 +9,8 @@ use App\Http\Controllers\Controller;
 use DB;
 
 class UserBetsController extends Controller
-{
+{	
+	//returns the previously placed bets of a user
 	public function query()
 	{
 		$user = $this->auth->user();

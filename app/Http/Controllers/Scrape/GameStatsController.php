@@ -12,6 +12,7 @@ class GameStatsController extends ScrapeController
 {
 	protected $baseUri = 'https://acs.leagueoflegends.com/';
 
+	//gather data from uri about events and stats from during a game and insert into the database
 	public function scrape()
 	{
 		$gameRealm = 'TRLH1';
@@ -22,6 +23,7 @@ class GameStatsController extends ScrapeController
 					->join('games', 'games.game_id', '=', 'game_mappings.game_id') 
 					->get();
 
+		//get stats for each game in the database
 		foreach ($games as $game)
 		{
 			$gameId = $game->game_id;
@@ -56,6 +58,7 @@ class GameStatsController extends ScrapeController
 
 		    $swapSides = substr($game->game_name, 1, 1) % 2 == 0;
 
+		    //get stats of both teams from the game
 		    foreach ($response->teams as $team) 
 		    {
 		    	$teamStats[] = [
@@ -86,6 +89,7 @@ class GameStatsController extends ScrapeController
 
 		    $index = 0;
 
+		    //get stats of all players from the game
 		    foreach ($response->participants as $player) 
 		    {
 		    	$playerStats[] = [
@@ -119,7 +123,6 @@ class GameStatsController extends ScrapeController
 
 		$this->fixApiIds();
 	}
-
 
 	private function fixApiIds()
 	{
@@ -172,16 +175,19 @@ class GameStatsController extends ScrapeController
 		}
 	}
 
+	//only return item ids if theyre != 0
 	private function cleanItem($itemId) 
 	{
 		return ($itemId == 0 ? null : $itemId);
 	}
 
+	//return if win is true
 	private function parseWin($win)
 	{
 		return ($win == 'Fail' ? false : true);
 	}
 
+	//return team id once theyve switched sides
 	private function fixSide($swapSides, $teamId)
 	{
 		if($swapSides)

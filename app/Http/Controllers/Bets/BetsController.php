@@ -18,23 +18,28 @@ class BetsController extends Controller
 	{
 		$request->merge(['user_credits' => $this->auth->user()->credits]);
 
-		$count = DB::table('bets')
+		//retrieve if player has already input a bet on the game id specified
+		$previousBet = DB::table('bets')
 				->where('user_id', $this->auth->user()->id)
 				->where('api_game_id', $request['bets'][0]['api_game_id'])
 				->get();
 
-		if(!$count)
+		if(!$previousBet)
 		{
 			throw new \Dingo\Api\Exception\ResourceException('User has already bet on game');
 		}
 
+		//retrieve game ID from request
 		$gameId = $request['bets'][0]['api_game_id'];
 
+		//check if all game id's are consistent
 		foreach ($request['bets'] as $entry) {
 			if($entry['api_game_id'] != $gameId)
 				throw new \Dingo\Api\Exception\ResourceException('Game ID must match for all bets'); 
 		}
 
+		//check if all contents are present in request
+		//also validate basic things such as credits bet is positive number
 		$validator = Validator::make($request->all(), [
 			'bets.*'					=> 'required',
 		    'bets.*.api_game_id' 		=> 'required|same:bets.*.api_game_id',
@@ -49,11 +54,13 @@ class BetsController extends Controller
             throw new \Dingo\Api\Exception\ResourceException('Invalid request sent.', $validator->errors());
         }
 
+        //collect and check if user has enough credits to make the bet
 		$sum = collect($request->input('bets.*.credits_placed'))->sum();
 		$request->merge(['credits_placed' => $sum]);
 
 		$perBetMaximum = ($this->auth->user()->credits - count($request->input('bets.*'))) + 1;
 
+		//validate that question exists and credits placed in the bet are within the acceptable range
 		$validator = Validator::make($request->all(), [
 		    'bets.*.question_slug' 		=> 'required|exists:questions,slug',
 		    'bets.*.credits_placed' 	=> 'required|integer|min:1|max:' . $perBetMaximum,
@@ -64,10 +71,12 @@ class BetsController extends Controller
             throw new \Dingo\Api\Exception\ResourceException('Invalid request sent.', $validator->errors());
         }
 
+        //gather match id
         $match = DB::table('games')->select('api_match_id')
         			->where('api_id_long', $request->input('bets.0.api_game_id'))
         			->first();
 
+        //gather games in the match
         $games = DB::table('schedule')
         			->select('games.*')
 					->join('matches', 'matches.api_id_long', '=', 'schedule.api_match_id')
@@ -80,7 +89,7 @@ class BetsController extends Controller
 			throw new \Dingo\Api\Exception\ResourceException('Invalid match ID.', $validator->errors());
 		}
 
-
+		//check state of match to see if it's already resolved
 		$matchState = DB::table('matches')->select('state')
 						->where('api_id_long', $match->api_match_id)
 						->first();
@@ -102,8 +111,8 @@ class BetsController extends Controller
 						->unique('game_name')
 						->keyBy('game_name');
 
+		//compare game time scheduled to time bet is placed
 		$mytime = Carbon::now();
-		// $mytime = Carbon::create(2016, 10, 8, 19, 00, 0);
 
 		if ($gameName == 'G1')
 		{
@@ -138,7 +147,7 @@ class BetsController extends Controller
 		}
 
 
-
+		//insert data into bets table
 		$betId = DB::table('bets')->insertGetId([
 			'user_id'			=> $this->auth->user()->id,
 			'credits_placed'	=> $request['credits_placed'],
@@ -147,6 +156,7 @@ class BetsController extends Controller
 		]);
 
 
+		//assemble and insert data into bet_details table
 		$questions = [];
 
 		foreach ($request['bets'] as $bet) {
@@ -173,8 +183,6 @@ class BetsController extends Controller
 						->get();
 
 		$matchId = $matchId[0]->api_match_id;
-
-		// dd($matchId);
 
 		DB::table('subscribed_users')->insert([
 			'user_id' => $this->auth->user()->id, 'api_match_id' => $matchId
