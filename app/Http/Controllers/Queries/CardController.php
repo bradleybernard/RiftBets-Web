@@ -13,26 +13,29 @@ use Validator;
 use \Carbon\Carbon;
 
 class CardController extends Controller
-{
+{   
+    /************************************************
+    * Generates game card and JSON
+    *
+    * Paramaters: request
+    * Returns: JSON with question cards and potential answers
+    ************************************************/
+
     public function generate(Request $request)
     {
-    	//$request.keys = [match_id, game_id, question_count, difficulty]
-    	// For now only uses api_game_id
-    	/*$input = collect([
-    		'user_id'			=> $this->auth->user()->id,
-    		'match_id'			=> $request->input('match_id', null),
-    		'api_game_id'		=> $request->input('api_game_id', null),
-    		'question_count'	=> $request->input('question_count'),
-    		'difficulty'		=> $request->input('difficulty', null),
-    		'reroll'			=> $request->input('reroll', false)
-    	]); */
+    	// $request.keys = [game_id, question_count, difficulty, reroll]
 
-    	/* Need to add Validation */
+        // Initialize validator class
+        // Validator checks:
+        //      If game_id exists in DB
+        //      If there is a question_count key in request
     	$validator = Validator::make($request->all(), [
             'api_game_id'       => 'exists:games,api_id_long',
-            'question_count'    => 'required'    
+            'question_count'    => 'required'       
         ]);
 
+        //Grabs user cards for this game.
+        //Returns null if no cards
         $checkCardExists = DB::table('cards')
                                     ->where('user_id', $this->auth->user()->id)
                                     ->where('api_game_id', $request->input('api_game_id'))
@@ -44,6 +47,7 @@ class CardController extends Controller
             if($checkCardExists)
                 throw new \Dingo\Api\Exception\ResourceException('Card already exists. Please reroll.'); 
 
+            // Create a new row in card_rerolls with default data
             DB::table('card_rerolls')->insert([
                 'user_id'       => $this->auth->user()->id,
                 'api_game_id'   => $request->input('api_game_id'),
@@ -60,6 +64,7 @@ class CardController extends Controller
             if(!$checkCardExists)
                 throw new \Dingo\Api\Exception\ResourceException('Card does not exist. Please generate card.');
 
+            // Grabs current reroll count for game
             $numberRerolls = DB::table('card_rerolls')->select('reroll_count')
                                 ->where('user_id', $checkCardExists->user_id)
                                 ->where('api_game_id', $checkCardExists->api_game_id)
@@ -69,6 +74,7 @@ class CardController extends Controller
             if($numberRerolls->reroll_count == 3)
                 throw new \Dingo\Api\Exception\ResourceException('Maximum rerolls reached.');
 
+            // Increment reroll count in Database
             DB::table('card_rerolls')
                 ->where('user_id', $checkCardExists->user_id)
                 ->where('api_game_id', $checkCardExists->api_game_id)
@@ -77,10 +83,13 @@ class CardController extends Controller
                     'updated_at'    => Carbon::now()->toDateTimeString(),
                 ]);
 
+            // Increment reroll count for JSON
             $numberRerolls = $numberRerolls->reroll_count + 1;
 
             $rerollRemaining = 3 - $numberRerolls;
 
+
+            // Finds previous cards in DB and deletes them
             $oldCardId = DB::table('cards')->select('id')
                             ->where('user_id', $checkCardExists->user_id)
                             ->where('api_game_id', $checkCardExists->api_game_id)
@@ -117,6 +126,7 @@ class CardController extends Controller
     					->get()
     					->toArray();
 
+        // Creates new game card and grabs the id
     	$cardId = DB::table('cards')->insertGetId([
     		'user_id'			=> $card->user_id,
     		'api_game_id'		=> $request->input('api_game_id'),
@@ -124,6 +134,7 @@ class CardController extends Controller
     		'created_at'		=> Carbon::now()->toDateTimeString(),
     	]);
 
+        // Inserts every question card into the DB
     	foreach ($questions as $question)
     	{
     		DB::table('card_details')->insert([
@@ -136,23 +147,33 @@ class CardController extends Controller
     	return $this->response->array((array)$card);
     }
 
+
+     /************************************************
+    * Generates question cards to the user
+    *
+    * Paramaters: request, card
+    * Returns: JSON with question cards
+    ************************************************/
+
     private function generateQuestions($request, &$card)
     {
+        // Grabs all possible questions from DB
     	$questions = DB::table('questions')->select(['id as question_id', 'slug', 'difficulty','multiplier', 'type', 'description'])->get();
 
-        // dd($questions->unique('type')->pluck('type'));
-
+        // Save and remove default question from potential question list
     	$defaultQuestion = $questions->get('1');
-
     	$questions->forget('1');
 
+        // If there is a question difficulty, select only that difficulty questions
     	if($request->input('difficulty', null) != null)
     	{
     		$questions = $questions->where('difficulty', $request->input('difficulty', null));
     	}
 
+        // Randomly pull the amount of questions
     	$questions = $questions->random($request->input('question_count'))->push($questions->get('5'));
 
+        // Adds libraries to fetch player and game data from
         $match = DB::table('games')->select('matches.*')->join('matches', 'matches.api_id_long', '=', 'games.api_match_id')
                 ->where('games.api_id_long', $request['api_game_id'])
                 ->get();
@@ -176,11 +197,13 @@ class CardController extends Controller
             return $value;
         });
 
+        // Adds default question to the list of questions
     	$questions->prepend($defaultQuestion);
 
         $teamOne = $teams->get($match->pluck('api_resource_id_one')->first());
         $teamTwo = $teams->get($match->pluck('api_resource_id_two')->first());
 
+        // Replaces term in question with data from library
         $replaces = [
             '%team_one%'                => $teamOne->acronym,
             '%team_two%'                => $teamTwo->acronym,
@@ -218,6 +241,14 @@ class CardController extends Controller
     	return $questions->toArray();
     }
 
+     /************************************************
+    * Formats player name with their slug
+    *
+    * Paramaters: team, player
+    * Returns: string of player name with team prefix
+    * Examples: $team = 'TSM', $player = 'Doublelift'
+    *           Returns 'TSM Doublelift'
+    ************************************************/
     private function formatPlayer($team, $player) 
     {
         return $team->acronym . ' ' . $player->name;

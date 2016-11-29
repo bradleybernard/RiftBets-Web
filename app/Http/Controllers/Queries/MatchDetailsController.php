@@ -12,10 +12,18 @@ use \Carbon\Carbon;
 
 class MatchDetailsController extends Controller
 {
+     /************************************************
+    * Generates match details for a given match
+    *
+    * Paramaters: request
+    * Returns: JSON with match details
+    ************************************************/
     public function query(Request $request)
     {
     	$matchId = $request['match_id'];
 
+        // Initialize validator class
+        // Checks if match id is in DB
         $validator = Validator::make($request->all(), [
             'match_id' => 'exists:matches,api_id_long'
         ]);
@@ -24,6 +32,7 @@ class MatchDetailsController extends Controller
             throw new \Dingo\Api\Exception\ResourceException('Invalid match id.', $validator->errors());
         }
 
+        // Grab the details of match from DB
     	$columns = ['matches.api_id_long', 'matches.name', 'resource_type', 'matches.state','matches.api_resource_id_one', 'matches.api_resource_id_two',
     			 'matches.score_one', 'matches.score_two'];
 
@@ -31,6 +40,7 @@ class MatchDetailsController extends Controller
     			->where('matches.api_id_long', $matchId)
     			->get();
 
+        // Retrieve which game is currently bettable and insert into JSON
         $bettable = $this->bettable($request, false);
 
         $rows->transform(function ($item, $key) use ($bettable) {
@@ -38,6 +48,7 @@ class MatchDetailsController extends Controller
             return $item;
         });
 
+        // Grab details for each team and add to JSON
     	$filtered = $rows->filter(function ($value, $key) {
             return $value->resource_type == 'roster';
         });
@@ -63,6 +74,7 @@ class MatchDetailsController extends Controller
             return $item;
         });
 
+        // Retrieves games played in the current match
     	$columns = ['games.name as game_name', 'games.game_id', 'games.api_id_long', 'games.generated_name', 'game_team_stats.team_id',
     				'game_team_stats.win', 'game_team_stats.first_blood', 'game_team_stats.first_inhibitor',
     				'game_team_stats.first_baron', 'game_team_stats.first_dragon', 'game_team_stats.first_rift_herald',
@@ -87,10 +99,12 @@ class MatchDetailsController extends Controller
 
         $gameVideos = collect($gameVideos)->groupBy('name');
         
+        // Filters out games that did not happen
     	$games = $games->filter(function ($value, $key) {
 			return $value->game_id !== null;
 		});
 
+        // Finds the game score e.g 1-0 or 3-2 and adds to JSON
         $team1 = $games->where('team_id', 100)->keyBy('game_name');
         $team2 = $games->where('team_id', 200)->keyBy('game_name');
 
@@ -108,6 +122,7 @@ class MatchDetailsController extends Controller
 
         $gameNumber = $gameIds->count();
 
+        // Grab statistics of every player and inserts in JSON
         $teamOnePlayers = DB::table('game_player_stats')
                         ->whereIn('game_id', $gameIds)
                         ->where('team_id', 100)
@@ -125,6 +140,7 @@ class MatchDetailsController extends Controller
                         ->get()
                         ->groupBy('game_id');
 
+        // Retrive item, summoner,champion libraries
         $summoners = DB::table('ddragon_summoners')->select('api_id as spell_id', 'name as spell_name', 'image_url')
                         ->get()
                         ->keyBy('spell_id');
@@ -137,6 +153,7 @@ class MatchDetailsController extends Controller
 
         $items = collect([]);
 
+        // Inserts each players item into JSON
         foreach ($allplayers as $game)
         {
             foreach ($game as $player) 
@@ -159,6 +176,7 @@ class MatchDetailsController extends Controller
                         ->get()
                         ->keyBy('item_id');
 
+        // Edits JSON with images to every item, champion, summoner
         foreach ($teamOnePlayers as $game)
         {
             foreach ($game as $player) 
@@ -193,6 +211,7 @@ class MatchDetailsController extends Controller
                     }
                 }
 
+                // Remove unneeded attributes
                 unset($player->id);
                 unset($player->game_id);
                 unset($player->profile_icon);
@@ -245,6 +264,7 @@ class MatchDetailsController extends Controller
             }
         }
 
+        // Retrieve bans and insert into queue
         $banIndex = ['ban_1', 'ban_2', 'ban_3'];
 
         $team1->transform(function ($item, $key) use ($teamOnePlayers, $champions, $banIndex)
@@ -285,6 +305,8 @@ class MatchDetailsController extends Controller
             'G5' => 'game_five',
         ];
 
+
+        // Create an array for each game played and insert into JSON
         foreach($allGames as $gameKey => $property) {
 
             if(!$team1->get($gameKey)) {
@@ -319,10 +341,19 @@ class MatchDetailsController extends Controller
         return $this->response->array((array)$rows->first());
     }
 
+     /************************************************
+    * Calculates if the match is bettable and which game is bettable
+    *
+    * Paramaters: request, isRoute
+    * Returns: Bet status, which game is bettable, time until bet.
+    *           JSON if function accessed externally.
+    ************************************************/
     public function bettable(Request $request, $isRoute = true)
     {
         $matchId = $request['match_id'];
 
+        // Initialize validator class
+        // Check if match id is in DB
         $validator = Validator::make($request->all(), [
             'match_id' => 'exists:matches,api_id_long'
         ]);
@@ -331,6 +362,7 @@ class MatchDetailsController extends Controller
             throw new \Dingo\Api\Exception\ResourceException('Invalid match id.', $validator->errors());
         }
 
+        // Grabs match id of current request
         $match = DB::table('matches')->select('state')
                     ->where('api_id_long', $matchId)
                     ->get()
@@ -346,6 +378,7 @@ class MatchDetailsController extends Controller
         } 
         else
         {
+            // If match is not finished, find list of games
             $games = DB::table('games')->select(['name as game_name', 'game_id'])
                         ->where('api_match_id', $matchId)
                         ->get()
@@ -357,6 +390,8 @@ class MatchDetailsController extends Controller
 
             if(!$games->first())
             {
+                // If current game is first game, retrieve game start time from schedule
+                // Add 5 minute window for before bets close
                 $gameStart = DB::table('schedule')->select('scheduled_time')
                                 ->where('api_match_id', $matchId)
                                 ->get()
@@ -372,6 +407,7 @@ class MatchDetailsController extends Controller
                 }
                 else
                 {
+                    // Insert the bettable game if current time is in betting window
                     $nextGame = collect([
                         'game_name'         => 'G1',
                         'bettable_until'    => $gameStart->toDateTimeString(),
@@ -380,6 +416,7 @@ class MatchDetailsController extends Controller
             }
             else
             {
+                // Finds the last game played in the series
                 $lastGame = max($games->keys()->toArray());
 
                 $gameStart = DB::table('game_mappings')->select('created_at')
@@ -387,6 +424,7 @@ class MatchDetailsController extends Controller
                                 ->get()
                                 ->first();
 
+                // Add a 15 minute window after the last game has finished for betting
                 $gameStart = Carbon::parse($gameStart->created_at);
 
                 $gameStart->addMinutes(15);
@@ -397,6 +435,7 @@ class MatchDetailsController extends Controller
                 }
                 else
                 {
+                    // Insert the bettable game if current time is in betting window
                     $nextGame = collect([
                         'game_name'         => 'G' .(1 + substr($lastGame, 1, 1)),
                         'bettable_until'    => $gameStart->toDateTimeString(),
